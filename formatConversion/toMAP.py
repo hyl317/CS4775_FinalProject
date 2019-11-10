@@ -11,7 +11,7 @@ parser.add_argument('-c', action="store", dest="c", type=int, help="chromosome n
 
 args = parser.parse_args()
 
-with open(file, 'r') as SNP:
+with open(args.f, 'r') as SNP:
     line = SNP.readline()
     while line:
         rsID, pos, _ = line.strip().split('\t')
