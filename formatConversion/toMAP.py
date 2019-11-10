@@ -18,7 +18,7 @@ with open(args.f, 'r') as SNP:
         #print(line.strip())
         #print(line.strip().split(' '))
         rsID, pos, *_ = line.strip().split(' ')
-        print(f'{args.c}\t{rsID}\t{0}\t{pos}')
+        print(f'{args.c}\t{rsID}\t{int(pos)/100000000}\t{pos}')
         line = SNP.readline()
 
 
