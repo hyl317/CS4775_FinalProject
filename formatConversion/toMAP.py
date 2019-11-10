@@ -7,7 +7,7 @@ import argparse
 
 parser = argparse.ArgumentParser(description='Convert SNP file from Hapmap3 project to PLINK formatted .map file')
 parser.add_argument('-f', action="store", dest="f", type=str, help="path to SNP file")
-parser.add_argument('-k', action="store", dest="c", type=int, help="chromosome number")
+parser.add_argument('-c', action="store", dest="c", type=int, help="chromosome number")
 
 args = parser.parse_args()
 
