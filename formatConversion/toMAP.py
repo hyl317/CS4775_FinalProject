@@ -14,7 +14,10 @@ args = parser.parse_args()
 with open(args.f, 'r') as SNP:
     line = SNP.readline()
     while line:
+	print(line.strip())
+	print(line.strip().split('\t'))
         rsID, pos, _ = line.strip().split('\t')
         print(f'{args.c}\t{rsID}\t{0}\t{pos}')
+	line = SNP.readline()
 
 
