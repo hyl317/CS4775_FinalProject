@@ -12,12 +12,13 @@ parser.add_argument('-c', action="store", dest="c", type=int, help="chromosome n
 args = parser.parse_args()
 
 with open(args.f, 'r') as SNP:
+    line = SNP.readline() #ignore the header line
     line = SNP.readline()
     while line:
-	print(line.strip())
-	print(line.strip().split('\t'))
-        rsID, pos, _ = line.strip().split('\t')
+        #print(line.strip())
+        #print(line.strip().split(' '))
+        rsID, pos, *_ = line.strip().split(' ')
         print(f'{args.c}\t{rsID}\t{0}\t{pos}')
-	line = SNP.readline()
+        line = SNP.readline()
 
 
