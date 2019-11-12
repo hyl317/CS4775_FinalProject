@@ -33,7 +33,7 @@ with open(args.p1) as pop1, open(args.p2) as pop2, open(args.m) as map, \
         pop1_snp, pop2_snp = pop1_info[2:], pop2_info[2:]
         #print(pop1_snp)
         #print(pop2_snp)
-        allele_set = set(pop1_snp + pop2_snp)
+        allele_set = list(set(pop1_snp + pop2_snp))
 
         # only biallelic position is retained
         if (len(allele_set)) != 2:
