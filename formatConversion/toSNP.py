@@ -19,7 +19,10 @@ args = parser.parse_args()
 
 with open(args.p1) as pop1, open(args.p2) as pop2, open(args.m) as map, \
     open('pop1.phgeno','w') as pop1out, open('pop2.phgeno','w') as pop2out, open('snp.txt','w') as snpout:
-
+    # ignore header line in pop1 and pop2
+    pop1.readline()
+    pop2.readline()
+    
     pop1_line, pop2_line, map_line = pop1.readline(), pop2.readline(), map.readline()
     
     while pop1_line and pop2_line and map_line:
@@ -28,10 +31,9 @@ with open(args.p1) as pop1, open(args.p2) as pop2, open(args.m) as map, \
         assert pop1[0] == pop2[0] and pop1[1] == pop2[1]
 
         pop1_snp, pop2_snp = pop1[2:], pop2[2:]
-        print(pop1_snp)
-        print(pop2_snp)
-        aggregate = np.array(pop1_snp.extend(pop2_snp))
-        allele_set = set(aggregate)
+        #print(pop1_snp)
+        #print(pop2_snp)
+        allele_set = set(pop1_snp + pop2_snp)
 
         # only biallelic position is retained
         if (len(allele_set)) != 2:
