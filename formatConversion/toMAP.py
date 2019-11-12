@@ -2,6 +2,9 @@
 # SNP file is expected to follow format as downloaded from Hapmap3 project
 # usage: ./toMAP.py -f [SNPfile] -c [chromosome number]
 # output is directed to STDOUT by default
+# In the output, the third column is supposed to be genetic distance
+# which should be calibrated with genetic map downloaded from Hapmap3 project FTP site
+# if not, this output provides a rough estimate for recombination rate
 
 import argparse
 

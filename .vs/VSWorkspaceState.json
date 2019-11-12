@@ -1,10 +1,7 @@
 {
   "ExpandedNodes": [
     "",
-    "\\formatConversion",
-    "\\Hapmix",
-    "\\Hapmix\\CEU",
-    "\\Hapmix\\YRI"
+    "\\formatConversion"
   ],
   "SelectedNode": "\\formatConversion\\toMAP.py",
   "PreviewInSolutionExplorer": false
