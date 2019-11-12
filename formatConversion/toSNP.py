@@ -27,10 +27,10 @@ with open(args.p1) as pop1, open(args.p2) as pop2, open(args.m) as map, \
     
     while pop1_line and pop2_line and map_line:
         chrom, snpid, gen_dist, phy_loc = map_line.strip().split('\t')
-        pop1, pop2 = pop1_line.strip().split(' '), pop2_line.strip().split(' ')
-        assert pop1[0] == pop2[0] and pop1[1] == pop2[1]
+        pop1_info, pop2_info = pop1_line.strip().split(' '), pop2_line.strip().split(' ')
+        assert pop1_info[0] == pop2_info[0] and pop1_info[1] == pop2_info[1]
 
-        pop1_snp, pop2_snp = pop1[2:], pop2[2:]
+        pop1_snp, pop2_snp = pop1_info[2:], pop2_info[2:]
         #print(pop1_snp)
         #print(pop2_snp)
         allele_set = set(pop1_snp + pop2_snp)
