@@ -28,7 +28,9 @@ with open(args.p1) as pop1, open(args.p2) as pop2, open(args.m) as map, \
         assert pop1[0] == pop2[0] and pop1[1] == pop2[1]
 
         pop1_snp, pop2_snp = pop1[2:], pop2[2:]
-        aggreate = np.array(pop1_snp.extend(pop2_snp))
+        print(pop1_snp)
+        print(pop2_snp)
+        aggregate = np.array(pop1_snp.extend(pop2_snp))
         allele_set = set(aggregate)
 
         # only biallelic position is retained
