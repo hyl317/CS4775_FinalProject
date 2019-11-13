@@ -52,7 +52,7 @@ with open(args.p1) as pop1, open(args.p2) as pop2, open(args.m) as map, \
         pop1out.write('\n')
         #pop2out.write(''.join(map(lambda x: str(1) if x == allele1 else str(0), pop2_snp)))
         #pop2out.write(''.join(map(str, np.array(pop2_snp) == allele1)))
-        pop1out.write(''.join(['1' if allele == allele1 else '0' for allele in pop2_snp]))
+        pop2out.write(''.join(['1' if allele == allele1 else '0' for allele in pop2_snp]))
         pop2out.write('\n')
 
         pop1_line, pop2_line, map_line = pop1.readline(), pop2.readline(), map.readline()
