@@ -32,8 +32,8 @@ with open(args.p1) as pop1, open(args.p2) as pop2, open(args.m) as map, \
         assert pop1_info[0] == pop2_info[0] and pop1_info[1] == pop2_info[1]
 
         pop1_snp, pop2_snp = copy.deepcopy(pop1_info[2:]), copy.deepcopy(pop2_info[2:])
-        print(pop1_snp)
-        print(pop2_snp)
+        #print(pop1_snp)
+        #print(pop2_snp)
         allele_set = list(set(pop1_snp + pop2_snp))
 
         # only biallelic position is retained
@@ -42,13 +42,15 @@ with open(args.p1) as pop1, open(args.p2) as pop2, open(args.m) as map, \
             continue
 
         allele1, allele2 = allele_set[0], allele_set[1]
-        temp = map(lambda x: str(1) if x == allele1 else str(0), pop1_snp)
-        templist = list(map)
-        print(f'templist is {templist}')
+        #temp = map(lambda x: str(1) if x == allele1 else str(0), pop1_snp)
+        #templist = list(map)
+        #print(f'templist is {templist}')
         snpout.write(f'{snpid}\t{chrom}\t{gen_dist}\t{phy_loc}\t{allele1}\t{allele2}\n')
-        pop1out.write(''.join(map(lambda x: str(1) if x == allele1 else str(0), pop1_snp)))
+        #pop1out.write(''.join(map(lambda x: str(1) if x == allele1 else str(0), pop1_snp)))
+        pop1out.write(''.join(np.array(pop1_snp) == allele1))
         pop1out.write('\n')
-        pop2out.write(''.join(map(lambda x: str(1) if x == allele1 else str(0), pop2_snp)))
+        #pop2out.write(''.join(map(lambda x: str(1) if x == allele1 else str(0), pop2_snp)))
+        pop2out.write(''.join(np.array(pop2_snp) == allele1))
         pop2out.write('\n')
 
         pop1_line, pop2_line, map_line = pop1.readline(), pop2.readline(), map.readline()
