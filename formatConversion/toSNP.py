@@ -41,6 +41,9 @@ with open(args.p1) as pop1, open(args.p2) as pop2, open(args.m) as map, \
             continue
 
         allele1, allele2 = allele_set[0], allele_set[1]
+        temp = map(lambda x: str(1) if x == allele1 else str(0), pop1_snp)
+        templist = list(map)
+        print(f'templist is {templist}')
         snpout.write(f'{snpid}\t{chrom}\t{gen_dist}\t{phy_loc}\t{allele1}\t{allele2}\n')
         pop1out.write(''.join(map(lambda x: str(1) if x == allele1 else str(0), pop1_snp)))
         pop1out.write('\n')
