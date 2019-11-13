@@ -10,6 +10,7 @@
 
 import argparse
 import numpy as np
+import copy
 
 parser = argparse.ArgumentParser(description='prepare inputs to admi-simu program for two reference populations')
 parser.add_argument('-p1', action="store", dest="p1", type=str, help="path to SNP file for pop1")
@@ -30,7 +31,7 @@ with open(args.p1) as pop1, open(args.p2) as pop2, open(args.m) as map, \
         pop1_info, pop2_info = pop1_line.strip().split(' '), pop2_line.strip().split(' ')
         assert pop1_info[0] == pop2_info[0] and pop1_info[1] == pop2_info[1]
 
-        pop1_snp, pop2_snp = pop1_info[2:], pop2_info[2:]
+        pop1_snp, pop2_snp = copy.deepcopy(pop1_info[2:]), copy.deepcopy(pop2_info[2:])
         print(pop1_snp)
         print(pop2_snp)
         allele_set = list(set(pop1_snp + pop2_snp))
@@ -47,7 +48,7 @@ with open(args.p1) as pop1, open(args.p2) as pop2, open(args.m) as map, \
         snpout.write(f'{snpid}\t{chrom}\t{gen_dist}\t{phy_loc}\t{allele1}\t{allele2}\n')
         pop1out.write(''.join(map(lambda x: str(1) if x == allele1 else str(0), pop1_snp)))
         pop1out.write('\n')
-        pop2out.write(''.join(map(lambda x: 1 if x == allele1 else 0, pop2_snp)))
+        pop2out.write(''.join(map(lambda x: str(1) if x == allele1 else str(0), pop2_snp)))
         pop2out.write('\n')
 
         pop1_line, pop2_line, map_line = pop1.readline(), pop2.readline(), map.readline()
