@@ -9,7 +9,7 @@
 # each row represents a SNP and each column a haplotype
 
 import argparse
-import copy
+import re
 import sys
 
 parser = argparse.ArgumentParser(description='prepare inputs to admi-simu program for two reference populations')
@@ -28,7 +28,8 @@ with open(args.p1) as pop1, open(args.p2) as pop2, open(args.m) as map, \
     
     while pop1_line and pop2_line and map_line:
         chrom, snpid, gen_dist, phy_loc = map_line.strip().split('\t')
-        pop1_info, pop2_info = pop1_line.strip().split(' '), pop2_line.strip().split(' ')
+        pop1_info, pop2_info = re.split('\s', pop1_line.strip()), re.split('\s', pop2_line.strip())
+        #pop1_info, pop2_info = pop1_line.strip().split(' '), pop2_line.strip().split(' ')
 
         if pop1_info[0] != pop2_info[0] or pop1_info[1] != pop2_info[1]:
             print(f'error occurs in pop1 at line \n{pop1_info}')
@@ -39,7 +40,7 @@ with open(args.p1) as pop1, open(args.p2) as pop2, open(args.m) as map, \
             sys.exit()
 
 
-        pop1_snp, pop2_snp = copy.deepcopy(pop1_info[2:]), copy.deepcopy(pop2_info[2:])
+        pop1_snp, pop2_snp = pop1_info[2:], pop2_info[2:]
         allele_set = list(set(pop1_snp + pop2_snp))
 
         # only biallelic position is retained
