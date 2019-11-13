@@ -31,6 +31,8 @@ with open(args.p1) as pop1, open(args.p2) as pop2, open(args.m) as map, \
         pop1_info, pop2_info = pop1_line.strip().split(' '), pop2_line.strip().split(' ')
 
         if pop1_info[0] != pop2_info[0] or pop1_info[1] != pop2_info[1]:
+            print(f'error occurs in pop1 at line {pop1_line}')
+            print(f'error occurs in pop2 at line {pop2_line}')
             print(f'pop1 has SNP {pop1_info[0]} at physical position {pop1_info[1]}')
             print(f'pop1 has SNP {pop2_info[0]} at physical position {pop2_info[1]}')
             print(f'two reference population must have the same set of SNP data')
