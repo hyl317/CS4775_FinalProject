@@ -42,8 +42,8 @@ with open(args.p1) as pop1, open(args.p2) as pop2, open(args.m) as map, \
 
         allele1, allele2 = allele_set[0], allele_set[1]
         snpout.write(f'{snpid}\t{chrom}\t{gen_dist}\t{phy_loc}\t{allele1}\t{allele2}\n')
-        pop1out.write(''.join(map(lambda x: 1 if x == allele1 else 0, pop1_snp)))
-        pop1out.write('\n')
+        #pop1out.write(''.join(map(lambda x: 1 if x == allele1 else 0, pop1_snp)))
+        #pop1out.write('\n')
         pop2out.write(''.join(map(lambda x: 1 if x == allele1 else 0, pop2_snp)))
         pop2out.write('\n')
 
