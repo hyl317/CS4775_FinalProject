@@ -39,6 +39,9 @@ def extractSNParray(dir):
             snp_info = f.readline();
             while snp_info:
                 snp_info = re.split('\s', snp_info.strip())
+                if snp_info[0] == 'rs11205400': # ignore this SNP marker because there is no genetic map info for it
+                    snp_info = f.readline()
+                    continue
                 snp_array.append(snp_info[2:])
                 snp_info = f.readline()
 
@@ -67,7 +70,9 @@ with open(args.m) as map, open('pop1.phgeno','w') as pop1out, \
         snp_pop1, snp_pop2 = snparray1[i].tolist(), snparray2[i].tolist()
         snpset = list(set(snp_pop1+snp_pop2))
 
-        if len(snpset) != 2: # only biallelic SNP is retained for downstream analysis
+        if len(snpset) != 2 or snpid == 'rs11205400': 
+            # only biallelic SNP is retained for downstream analysis
+            # and again we ignore this SNP because it has no genetic map info
             continue
 
         allele1, allele2 = snpset[0], snpset[1]
