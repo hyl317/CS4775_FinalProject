@@ -43,7 +43,8 @@ def extractSNParray(dir):
                 snp_info = f.readline()
 
         snp_2dlist.append(np.array(snp_array))
-    return functools.reduce(lambda x,y:np.concatenate(x,y,axis=1), snp_2dlist) # joining snp arrays from multiple hapmap3 files together
+    #print(snp_2dlist)
+    return functools.reduce(lambda x,y:np.concatenate((x,y),axis=1), snp_2dlist) # joining snp arrays from multiple hapmap3 files together
 
 snparray1 = extractSNParray(args.p1)
 snparray2 = extractSNParray(args.p2)
@@ -63,13 +64,13 @@ with open(args.m) as map, open('pop1.phgeno','w') as pop1out, \
             sys.exit()
 
         chrom, snpid, gen_dist, phy_loc = map_line.strip().split('\t')
-        snp_pop1, snp_pop2 = snparray1[i], snparray2[i]
-        snpset = set(snp_pop1+snp_pop2)
+        snp_pop1, snp_pop2 = snparray1[i].tolist(), snparray2[i].tolist()
+        snpset = list(set(snp_pop1+snp_pop2))
 
         if len(snpset) != 2: # only biallelic SNP is retained for downstream analysis
             continue
 
-        allele1, allele2 = snpset[0], snpset[2]
+        allele1, allele2 = snpset[0], snpset[1]
         snpout.write(f'{snpid}\t{chrom}\t{gen_dist}\t{phy_loc}\t{allele1}\t{allele2}\n')
         pop1out.write(''.join(['1' if allele == allele1 else '0' for allele in snp_pop1]))
         pop1out.write('\n')
