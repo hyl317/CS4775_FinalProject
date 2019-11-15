@@ -13,6 +13,7 @@ import numpy as np
 import re
 import os
 import sys
+import functools
 
 
 parser = argparse.ArgumentParser(description='prepare inputs to admi-simu program for two reference populations. All files starting with hapmap3 in the directory will be extracted.')
@@ -42,7 +43,7 @@ def extractSNParray(dir):
                 snp_info = f.readline()
 
         snp_2dlist.append(np.array(snp_array))
-    return reduce(lambda x,y:np.concatenate(x,y,axis=1), snp_2dlist) # joining snp arrays from multiple hapmap3 files together
+    return functools.reduce(lambda x,y:np.concatenate(x,y,axis=1), snp_2dlist) # joining snp arrays from multiple hapmap3 files together
 
 snparray1 = extractSNParray(args.p1)
 snparray2 = extractSNParray(args.p2)
