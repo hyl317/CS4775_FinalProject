@@ -33,7 +33,7 @@ def extractSNParray(dir):
             continue
 
         snp_array = [];
-        with open(file) as f:
+        with open(f'{dir}/file') as f:
             f.readline() #ignore header line
             snp_info = f.readline();
             while snp_info:
