@@ -30,31 +30,31 @@ class HMM(object):
         term01 = -r*self.t - self.rho1*r
         term02 = math.log(1-math.exp(-r*self.t)) + math.log(self.mu) - math.log(self.n1)
         term03 = -r*self.t + math.log(1-math.exp(-self.rho1*r)) - math.log(self.n1)
-        diag0 = logsumexp(term01, term02, term03)
+        diag0 = logsumexp([term01, term02, term03])
 
         # case2: i=l=1
         term11 = -r*self.t - self.rho2*r
         term12 = math.log(1-math.exp(-r*self.t)) + math.log(1-self.mu) - math.log(self.n2)
         term13 = -r*self.t + math.log(1-math.exp(-self.rho2*r)) - math.log(self.n2)
-        diag1 = logsumexp(term11, term12, term13)
+        diag1 = logsumexp([term11, term12, term13])
 
 
         # For cases where there is a 'successfully' (aka, i != l) ancestry switch
         # swtich to ancestry 0
         AncestrySwitchTo0 = math.log(1-math.exp(-r*self.t)) +  math.log(self.mu) - math.log(self.n1)
         # switch to ancestry 1
-        AncestrySwitchTo1 = math.log(1-math.exp(r*self.t)) + math.log(1-self.mu) - math.log(sefl.n2)
+        AncestrySwitchTo1 = math.log(1-math.exp(-r*self.t)) + math.log(1-self.mu) - math.log(self.n2)
 
         # for cases where there is no ancestry switch (or a silent ancestry switch)
         # but a 'successful' (aka i=l && k != n) haplotype switch within the same ancestry
         # case1: i=l=0
         term01 = math.log(1-math.exp(-r*self.t)) + math.log(self.mu) - math.log(self.n1)
         term02 = -r*self.t + math.log(1-math.exp(-self.rho1*r)) - math.log(self.n1)
-        haploSwitchAncestry0 = logsumexp(term01 + term02)
+        haploSwitchAncestry0 = logsumexp([term01, term02])
         # case2: i=l=1
         term11 = math.log(1-math.exp(-r*self.t)) + math.log(1-self.mu) - math.log(self.n2)
         term12 = -r*self.t + math.log(1-math.exp(-self.rho2*r)) - math.log(self.n2)
-        haploSwitchAncestry1 = logsumexp(term11 + term12)
+        haploSwitchAncestry1 = logsumexp([term11, term12])
 
         T[:self.n1, :self.n1] = haploSwitchAncestry0
         T[self.n1:, self.n1:] = haploSwitchAncestry1
