@@ -62,13 +62,27 @@ class hmm(object):
         T[self.n1:, :self.n1] = AncestrySwitchTo0
         # lastly, fill in the diagonal entries
         diagonal = [diag0]*self.n1 + [diag1]*self.n2
-        di = np.diag_indices(self.n1+self.n2)
+        di = np.diag_indices(self.n1 + self.n2)
         T[di] = diagonal
         
         return T
 
     def forward(obs):
         # Given the observed haplotype, compute its forward matrix
+        f = np.full((self.n1+self.n2, self.numSNP), np.nan)
+        # initialization
+        pop1SNP, pop2SNP = self.pop1matrix[0][:,np.newaxis], self.pop2matrix[0][:,np.newaxis]
+        pop1 = np.concatenate((pop1SNP == obs[0], pop1SNP != obs[0]), axis=1)
+        pop2 = np.concatenate((pop2SNP == obs[0], pop2SNP != obs[0]), axis=1)
+        theta_pop1 = np.array([1-self.theta1, self.theta1])[:,np.newaxis]
+        theta_pop2 = np.array([1-self.theta2, self.theta2])[:,np.newaxis]
+        #emission_pop1 = pop1 @ theta_pop1
+        #emission_pop2 = pop2 @ theta_pop2
+        emission0 = np.concatenate((pop1@theta_pop1, pop2@theta_pop2))
+        f[:,0] = -math.log(self.n1+self.n2)+np.log(emission0)
+        print(f[:,0])
+
+
         pass
 
     def backward(obs):
@@ -79,6 +93,7 @@ class hmm(object):
         # infer hidden state of each SNP sites in the given haplotype
         # state[j] = 0 means site j was most likely copied from population 1 
         # and state[j] = 1 means site j was most likely copies from population 2
-        pass
+        f = forward(obs)
+        return 0
 
 

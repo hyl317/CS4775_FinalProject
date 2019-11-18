@@ -1,6 +1,7 @@
 import argparse
 import sys
 import numpy as np
+import hmm
 
 def readEigenstrat(file):
     '''
@@ -72,6 +73,10 @@ def main():
     print(f'mu1={args.mu},T={args.t}')
     print(f'rho1={rho1},rho2={rho2}')
     print(f'theta1={theta1},theta2={theta2}')
+
+    hmmModel = hmm(pop1_snp, pop2_snp, args.mu, args.t, numSNP, n1, n2, rho1, rho2, theta1, theta2, D)
+    for i in range(a_snp.shape[1]):
+        states = hmmModel.decode(a_snp[:, i])
 
 
 if __name__ == '__main__':
