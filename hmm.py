@@ -76,14 +76,15 @@ class hmm(object):
         pop2 = np.concatenate((pop2SNP == obs[0], pop2SNP != obs[0]), axis=1)
         theta_pop1 = np.array([1-self.theta1, self.theta1])[:,np.newaxis]
         theta_pop2 = np.array([1-self.theta2, self.theta2])[:,np.newaxis]
-        #emission_pop1 = pop1 @ theta_pop1
-        #emission_pop2 = pop2 @ theta_pop2
         emission0 = np.concatenate((pop1@theta_pop1, pop2@theta_pop2))
-        f[:,0] = -math.log(self.n1+self.n2)+np.log(emission0)
-        print(f[:,0])
+        f[:,0] = -math.log(self.n1+self.n2) + np.log(emission0)
+        
+        # fill in forward matrix
+        for j in range(1, self.numSNP):
+            T = self.transition(self.D[j])
+            print(logsumexp(f[:,j-1] + T, axis=1).shape) # sum over each column
 
 
-        pass
 
     def backward(obs):
         # Given the observed haplotype, compute its backward matrix
