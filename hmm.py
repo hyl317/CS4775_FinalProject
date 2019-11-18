@@ -75,7 +75,7 @@ class HMM(object):
         theta_pop1 = np.array([1-self.theta1, self.theta1])[:,np.newaxis]
         theta_pop2 = np.array([1-self.theta2, self.theta2])[:,np.newaxis]
         emission = np.concatenate((pop1@theta_pop1, pop2@theta_pop2))
-        return emission
+        return np.log(emission)
 
     def forward(self, obs):
         # Given the observed haplotype, compute its forward matrix
@@ -87,10 +87,10 @@ class HMM(object):
          # fill in forward matrix
         for j in range(1, self.numSNP):
             T = self.transition(self.D[j])
-            print(f'transition matrix:{T}')
+            #print(f'transition matrix:{T}')
             # using axis=1, logsumexp sum over each column of the transition matrix
-            print(f'emission:{self.emission(obs, j).flatten()}')
-            print(f'transition times previous state:{logsumexp(f[:,j-1][:,np.newaxis] + T, axis=1)}')
+            #print(f'emission:{self.emission(obs, j).flatten()}')
+            #print(f'transition times previous state:{logsumexp(f[:,j-1][:,np.newaxis] + T, axis=1)}')
             f[:, j] = self.emission(obs, j).flatten() + logsumexp(f[:,j-1][:,np.newaxis] + T, axis=1)
         return f
 
