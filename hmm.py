@@ -85,7 +85,7 @@ class HMM(object):
         # each SNP occupies a row, and each column correspond to a state
         emis = np.full((self.numSNP, self.n1+self.n2), np.nan)
         for j in range(self.numSNP):
-            emis[j] = emission(obs[j], j)
+            emis[j] = self.emission(obs[j], j)
         return emis
 
     def forward_cache(self, obs):
