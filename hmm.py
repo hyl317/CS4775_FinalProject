@@ -103,10 +103,7 @@ class HMM(object):
          # fill in forward matrix
         for j in range(1, self.numSNP):
             T = self.transition(self.D[j])
-            #print(f'transition matrix:{T}')
             # using axis=1, logsumexp sum over each column of the transition matrix
-            #print(f'emission:{self.emission(obs, j).flatten()}')
-            #print(f'transition times previous state:{logsumexp(f[:,j-1][:,np.newaxis] + T, axis=1)}')
             f[:, j] = self.emission(obs, j).flatten() + logsumexp(f[:,j-1][:,np.newaxis] + T, axis=1)
         return f
 
@@ -114,7 +111,11 @@ class HMM(object):
 
     def backward(self, obs):
         # Given the observed haplotype, compute its backward matrix
+        
+
         pass
+    
+    
     @profile
     def decode(self, obs):
         # infer hidden state of each SNP sites in the given haplotype
