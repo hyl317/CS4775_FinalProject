@@ -1,0 +1,14 @@
+/data/home/yh362/work/CS4775_FINAL/code/hmm.py:85: RuntimeWarning: invalid value encountered in log
+  f[:,0] = (-math.log(self.n1+self.n2)+np.log(emission0)).flatten()
+data preprocessing done. Ready to run HMM model
+Input data contains 114600 SNP sites
+mu1=0.2,T=6
+rho1=256.4102564102564,rho2=391.30434782608694
+theta1=0.0008539709649871905,theta2=0.0008688097306689836
+[[nan nan nan ... nan nan nan]
+ [nan nan nan ... nan nan nan]
+ [nan nan nan ... nan nan nan]
+ ...
+ [nan nan nan ... nan nan nan]
+ [nan nan nan ... nan nan nan]
+ [nan nan nan ... nan nan nan]]

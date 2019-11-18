@@ -82,7 +82,7 @@ class HMM(object):
         f = np.full((self.n1+self.n2, self.numSNP), np.nan)
         # initialization
         emission0 = self.emission(obs, 0)
-        f[:,0] = (-math.log(self.n1+self.n2)+np.log(emission0)).flatten()
+        f[:,0] = (-math.log(self.n1+self.n2) + emission0).flatten()
         
          # fill in forward matrix
         for j in range(1, self.numSNP):
