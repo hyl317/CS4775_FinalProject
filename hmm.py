@@ -2,8 +2,8 @@ import numpy as np
 import math
 from scipy.special import logsumexp
 
-class hmm(object):
-    def __init__(pop1_snp, pop2_snp, mu, t, numSNP, n1, n2, rho1, rho2, theta1, theta2, D):
+class HMM(object):
+    def __init__(self, pop1_snp, pop2_snp, mu, t, numSNP, n1, n2, rho1, rho2, theta1, theta2, D):
         self.pop1matrix = pop1_snp
         self.pop2matrix = pop2_snp
         self.mu = mu
@@ -16,7 +16,7 @@ class hmm(object):
         #self.forward = np.full((n1+n2, numSNP), np.nan)
         #self.backward = np.full((n1+n2, numSNP), np.nan)
 
-    def transition(r):
+    def transition(self, r):
         # calculate transition log probability matrix between two sites separated by distance r (measured in Morgan)
         numHiddenState = self.n1 + self.n2
         T = np.full((numHiddenState, numHiddenState), np.nan)
@@ -67,7 +67,7 @@ class hmm(object):
         
         return T
 
-    def forward(obs):
+    def forward(self, obs):
         # Given the observed haplotype, compute its forward matrix
         f = np.full((self.n1+self.n2, self.numSNP), np.nan)
         # initialization
@@ -79,21 +79,21 @@ class hmm(object):
         #emission_pop1 = pop1 @ theta_pop1
         #emission_pop2 = pop2 @ theta_pop2
         emission0 = np.concatenate((pop1@theta_pop1, pop2@theta_pop2))
-        f[:,0] = -math.log(self.n1+self.n2)+np.log(emission0)
+        f[:,0] = (-math.log(self.n1+self.n2)+np.log(emission0)).flatten()
         print(f[:,0])
 
 
         pass
 
-    def backward(obs):
+    def backward(self, obs):
         # Given the observed haplotype, compute its backward matrix
         pass
 
-    def decode(obs):
+    def decode(self, obs):
         # infer hidden state of each SNP sites in the given haplotype
         # state[j] = 0 means site j was most likely copied from population 1 
         # and state[j] = 1 means site j was most likely copies from population 2
-        f = forward(obs)
+        f = self.forward(obs)
         return 0
 
 
