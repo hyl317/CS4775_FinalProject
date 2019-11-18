@@ -1,6 +1,7 @@
 import numpy as np
 import math
 from scipy.special import logsumexp
+import time
 
 class HMM(object):
     def __init__(self, pop1_snp, pop2_snp, mu, t, numSNP, n1, n2, rho1, rho2, theta1, theta2, D):
@@ -77,6 +78,19 @@ class HMM(object):
         emission = np.concatenate((pop1@theta_pop1, pop2@theta_pop2))
         return np.log(emission)
 
+    def forward_cache(self, obs):
+        f = np.full((self.numSNP, self.n1+self.n2), np.nan)
+        #initialization
+        emission0 = self.emission(obs, 0)
+        f[0,:] = (-math.log(self.n1+self.n2) + emission0).flatten()
+
+        for j in range(1, self.numSNP):
+            T = self.transition(self.D[j])
+            f[j] = self.emission(obs, j).flatten()+logsumexp(f[j-1][:,np.newaxis]+T, axis=1)
+        return f;
+
+        
+
     def forward(self, obs):
         # Given the observed haplotype, compute its forward matrix
         f = np.full((self.n1+self.n2, self.numSNP), np.nan)
@@ -104,8 +118,16 @@ class HMM(object):
         # infer hidden state of each SNP sites in the given haplotype
         # state[j] = 0 means site j was most likely copied from population 1 
         # and state[j] = 1 means site j was most likely copies from population 2
-        f = self.forward(obs)
-        print(f)
+        start1 = time.time()
+        f1 = self.forward_cache(obs)
+        end1= time.time()
+        print(f'cached version takes time {end1-start1}')
+
+        start2 = time.time()
+        f2 = self.forward(obs)
+        end2= time.time()
+        print(f'uncached version takes time {end2-start2}')
+        assert np.isclose(f1, f2)
         return 0
 
 
