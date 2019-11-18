@@ -70,15 +70,23 @@ class HMM(object):
         return T
 
     @profile
-    def emission(self, obs, j):
+    def emission(self, obs_j, j):
         # return log probability of emission for site j
         pop1SNP, pop2SNP = self.pop1matrix[j][:,np.newaxis], self.pop2matrix[j][:,np.newaxis]
-        pop1 = np.concatenate((pop1SNP == obs[j], pop1SNP != obs[j]), axis=1)
-        pop2 = np.concatenate((pop2SNP == obs[j], pop2SNP != obs[j]), axis=1)
+        pop1 = np.concatenate((pop1SNP == obs_j, pop1SNP != obs_j), axis=1)
+        pop2 = np.concatenate((pop2SNP == obs_j, pop2SNP != obs_j), axis=1)
         theta_pop1 = np.array([1-self.theta1, self.theta1])[:,np.newaxis]
         theta_pop2 = np.array([1-self.theta2, self.theta2])[:,np.newaxis]
         emission = np.concatenate((pop1@theta_pop1, pop2@theta_pop2))
         return np.log(emission)
+
+    def emissionALL(self, obs):
+        # precompute all emission probabilities for all sites
+        # each SNP occupies a row, and each column correspond to a state
+        emis = np.full((self.numSNP, self.n1+self.n2), np.nan)
+        for j in range(self.numSNP):
+            emis[j] = emission(obs[j], j)
+        return emis
 
     def forward_cache(self, obs):
         f = np.full((self.numSNP, self.n1+self.n2), np.nan)
@@ -93,25 +101,26 @@ class HMM(object):
 
         
     @profile
-    def forward(self, obs):
+    def forward(self, obs, emis):
         # Given the observed haplotype, compute its forward matrix
         f = np.full((self.n1+self.n2, self.numSNP), np.nan)
         # initialization
-        emission0 = self.emission(obs, 0)
-        f[:,0] = (-math.log(self.n1+self.n2) + emission0).flatten()
+        #emission0 = self.emission(obs, 0)
+        f[:,0] = (-math.log(self.n1+self.n2) + emis[0]).flatten()
         
          # fill in forward matrix
         for j in range(1, self.numSNP):
             T = self.transition(self.D[j])
             # using axis=1, logsumexp sum over each column of the transition matrix
-            f[:, j] = self.emission(obs, j).flatten() + logsumexp(f[:,j-1][:,np.newaxis] + T, axis=1)
+            f[:, j] = emis[j] + logsumexp(f[:,j-1][:,np.newaxis] + T, axis=1)
         return f
 
 
 
     def backward(self, obs):
         # Given the observed haplotype, compute its backward matrix
-        
+        f = np.full((self.n1+self.n2, self.numSNP), np.nan)
+
 
         pass
     
@@ -128,7 +137,8 @@ class HMM(object):
         #print(f'cached version takes time {end1-start1}')
 
         start2 = time.time()
-        f2 = self.forward(obs)
+        emis = self.emissionALL(obs)
+        f2 = self.forward(obs, emis)
         end2= time.time()
         print(f'uncached version takes time {end2-start2}')
         #assert np.allclose(f1.T, f2)
