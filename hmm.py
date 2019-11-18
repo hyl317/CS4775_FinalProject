@@ -81,14 +81,14 @@ class HMM(object):
         # Given the observed haplotype, compute its forward matrix
         f = np.full((self.n1+self.n2, self.numSNP), np.nan)
         # initialization
-        emission0 = self.emission(obs, j)
+        emission0 = self.emission(obs, 0)
         f[:,0] = (-math.log(self.n1+self.n2)+np.log(emission0)).flatten()
         
          # fill in forward matrix
         for j in range(1, self.numSNP):
             T = self.transition(self.D[j])
             # using axis=1, logsumexp sum over each column of the transition matrix
-            f[:, j] = (self.emission(obs, j) + logsumexp(f[:,j-1] + T, axis=1)).flatten()
+            f[:, j] = self.emission(obs, j).flatten() + logsumexp(f[:,j-1][:,np.newaxis] + T, axis=1)
         return f
 
 
