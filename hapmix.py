@@ -29,6 +29,7 @@ def readGeneticMap(file):
     with open(file) as f:
         d = [0]
         d.extend([line.strip().split('\t')[2] for line in f.readlines()])
+        d = list(map(int, d))
         D = [d[i+1]-d[i] for i in range(len(d)-1)]
         return D
 
