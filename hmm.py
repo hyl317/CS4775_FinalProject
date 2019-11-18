@@ -67,22 +67,29 @@ class HMM(object):
         
         return T
 
+    def emission(self, obs, j):
+        # return log probability of emission for site j
+        pop1SNP, pop2SNP = self.pop1matrix[j][:,np.newaxis], self.pop2matrix[j][:,np.newaxis]
+        pop1 = np.concatenate((pop1SNP == obs[j], pop1SNP != obs[j]), axis=1)
+        pop2 = np.concatenate((pop2SNP == obs[j], pop2SNP != obs[j]), axis=1)
+        theta_pop1 = np.array([1-self.theta1, self.theta1])[:,np.newaxis]
+        theta_pop2 = np.array([1-self.theta2, self.theta2])[:,np.newaxis]
+        emission = np.concatenate((pop1@theta_pop1, pop2@theta_pop2))
+        return emission
+
     def forward(self, obs):
         # Given the observed haplotype, compute its forward matrix
         f = np.full((self.n1+self.n2, self.numSNP), np.nan)
         # initialization
-        pop1SNP, pop2SNP = self.pop1matrix[0][:,np.newaxis], self.pop2matrix[0][:,np.newaxis]
-        pop1 = np.concatenate((pop1SNP == obs[0], pop1SNP != obs[0]), axis=1)
-        pop2 = np.concatenate((pop2SNP == obs[0], pop2SNP != obs[0]), axis=1)
-        theta_pop1 = np.array([1-self.theta1, self.theta1])[:,np.newaxis]
-        theta_pop2 = np.array([1-self.theta2, self.theta2])[:,np.newaxis]
-        emission0 = np.concatenate((pop1@theta_pop1, pop2@theta_pop2))
+        emission0 = self.emission(obs, j)
         f[:,0] = (-math.log(self.n1+self.n2)+np.log(emission0)).flatten()
         
          # fill in forward matrix
         for j in range(1, self.numSNP):
             T = self.transition(self.D[j])
-            print(logsumexp(f[:,j-1] + T, axis=1).shape) # sum over each column
+            # using axis=1, logsumexp sum over each column of the transition matrix
+            f[:, j] = (self.emission(obs, j) + logsumexp(f[:,j-1] + T, axis=1)).flatten()
+        return f
 
 
 
@@ -95,6 +102,7 @@ class HMM(object):
         # state[j] = 0 means site j was most likely copied from population 1 
         # and state[j] = 1 means site j was most likely copies from population 2
         f = self.forward(obs)
+        print(f)
         return 0
 
 
