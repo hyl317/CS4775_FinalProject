@@ -60,7 +60,7 @@ def main():
     theta1, theta2 = 0.2/(0.2+n1), 0.2/(0.2+n2)
     print('data preprocessing done. Ready to run HMM model')
     print(f'Input data contains {numSNP} SNP sites')
-    print(f'mu1={args.mu},T={args.T}')
+    print(f'mu1={args.mu},T={args.t}')
     print(f'rho1={rho1},rho2={rho2}')
     print(f'theta1={theta1},theta2={theta2}')
 
