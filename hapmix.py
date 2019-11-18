@@ -12,7 +12,7 @@ def readEigenstrat(file):
         Similarly, each row is a SNP, and each column a haplotype.
     '''
     with open(file) as f:
-        snps = f.readlines().strip().split('\n')
+        snps = f.readlines()
         snps = [list(snp) for snp in snps]
         return np.array(snps)
 
@@ -26,6 +26,10 @@ def main():
     args = parser.parse_args()
 
     pop1_snp, pop2_snp, a_snp = readEigenstrat(args.p1), readEigenstrat(args.p2), readEigenstrat(args.a)
+    print(pop1_snp)
+    print(pop1.shape)
+    print(pop2.shape)
+    print(pop3.shape)
 
 if __name__ == '__main__':
     main()
