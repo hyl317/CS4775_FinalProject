@@ -25,14 +25,18 @@ def readGeneticMap(file):
         A list D containing genetic distance between consecutive SNP sites.
         For example, D[j] should be the genetic distance between the jth and (j+1)th SNPs.
         zero-indexed.
+
+        A list p containing physical location of each SNP site.
     '''
     with open(file) as f:
         d = [0]
         d.extend([line.strip().split('\t')[2] for line in f.readlines()])
         d = list(map(float, d))
-        print(d)
         D = [d[i+1]-d[i] for i in range(len(d)-1)]
-        return D
+
+        p = [line.strip().split('\t')[3] for line in f.readlines()]
+        p = list(map(int, p))
+        return np.array(D), np.array(p)
 
 
 def main():
@@ -46,11 +50,16 @@ def main():
     args = parser.parse_args()
 
     pop1_snp, pop2_snp, a_snp = readEigenstrat(args.p1), readEigenstrat(args.p2), readEigenstrat(args.a)
-    D = readGeneticMap(args.m)
+    D, P = readGeneticMap(args.m)
     # check whether the input data contains the same number of SNP
     if not (pop1_snp.shape[0] == pop2_snp.shape[0] and pop2_snp.shape[0] == a_snp.shape[0] \
         and a_snp.shape[0] == len(D)):
-        print('Input data should contain the same set of SNPs. \nExitting......')
+        print('Input data should contain the same set of SNPs. \nExitting...')
+        sys.exit()
+
+    # check validity of genetic distance
+    if np.any(D <= 0):
+        print('Genetic distance between two consecutive site should be greater than zero.\n Exitting...')
         sys.exit()
 
     # set parameters of HMM as suggested in the original paper
