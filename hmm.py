@@ -87,7 +87,10 @@ class HMM(object):
          # fill in forward matrix
         for j in range(1, self.numSNP):
             T = self.transition(self.D[j])
+            print(T)
             # using axis=1, logsumexp sum over each column of the transition matrix
+            print(self.emission(obs, j).flatten())
+            print(logsumexp(f[:,j-1][:,np.newaxis] + T, axis=1))
             f[:, j] = self.emission(obs, j).flatten() + logsumexp(f[:,j-1][:,np.newaxis] + T, axis=1)
         return f
 
