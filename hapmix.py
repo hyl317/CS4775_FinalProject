@@ -26,10 +26,23 @@ def main():
     args = parser.parse_args()
 
     pop1_snp, pop2_snp, a_snp = readEigenstrat(args.p1), readEigenstrat(args.p2), readEigenstrat(args.a)
-    print(pop1_snp)
-    print(pop1_snp.shape)
-    print(pop2_snp.shape)
-    print(pop3_snp.shape)
+
+    # check whether the input data contains the same number of SNP
+    if not (pop1_snp.shape[0] == pop2_snp.shape[0] and pop2_snp.shape[0] == a_snp.shape[0]):
+        print('Input data should contain the same set of SNPs. \nExitting......')
+        sys.exit()
+
+    # set parameters of HMM as suggested in the original paper
+    numSNP = pop1_snp.shape[0]
+    n1, n2 = pop1_snp.shape[1], pop2_snp.shape[1]
+    rho1, rho2 = 60000/n1, 90000/n2
+    theta1, theta2 = 0.2/(0.2+n1), 0.2/(0.2+n2)
+    print('data preprocessing done. Ready to run HMM model')
+    print(f'Input data contains {} SNP sites')
+    print(f'mu1={args.mu},T={args.T}')
+    print(f'rho1={rho1},rho2={rho2}')
+    print(f'theta1={theta1},theta2={theta2}')
+
 
 if __name__ == '__main__':
     main()
