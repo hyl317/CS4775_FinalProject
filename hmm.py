@@ -80,6 +80,7 @@ class HMM(object):
         emission = np.concatenate((pop1@theta_pop1, pop2@theta_pop2))
         return np.log(emission)
 
+    @profile
     def emissionALL(self, obs):
         # precompute all emission probabilities for all sites
         # each SNP occupies a row, and each column correspond to a state
@@ -116,13 +117,17 @@ class HMM(object):
         return f
 
 
-
-    def backward(self, obs):
+    @profile
+    def backward(self, obs, emis):
         # Given the observed haplotype, compute its backward matrix
-        f = np.full((self.n1+self.n2, self.numSNP), np.nan)
+        b = np.full((self.n1+self.n2, self.numSNP), np.nan)
+        # initialization
+        b[:, self.numSNP-1] = np.full(self.n1+self.n2, 0)
 
+        for j in range(self.numSNP-2, -1, -1):
+            T = self.transition(self.D[j+1])
+            b[:,j] = logsumexp(T + emis[j+1][:,np.newaxis] + b[:,j+1][:,np.newaxis],axis=1)
 
-        pass
     
     
     @profile
@@ -136,13 +141,14 @@ class HMM(object):
         #end1= time.time()
         #print(f'cached version takes time {end1-start1}')
 
-        start2 = time.time()
+        start = time.time()
         emis = self.emissionALL(obs)
-        f2 = self.forward(obs, emis)
-        end2= time.time()
+        f = self.forward(obs, emis)
+        b = self.backward(obs, emis)
+        end= time.time()
         print(f'uncached version takes time {end2-start2}')
-        #assert np.allclose(f1.T, f2)
-        print(f2)
+        printf(f'forward probability:{logsumexp(f[:,-1])}')
+        printf(f'backward probability:{logsumexp(-math.exp(self.n1+self.n2)+emis[0]+b[:,1])}')
         return 0
 
 
