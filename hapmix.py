@@ -14,7 +14,7 @@ def readEigenstrat(file):
     with open(file) as f:
         snps = f.readlines()
         snps = [list(snp) for snp in snps]
-        return np.array(snps)
+        return np.array(snps)[:,:-1]
 
 def main():
     parser = argparse.ArgumentParser(description='Local Ancestry Inference as implemented in Hapmix.')
@@ -27,9 +27,9 @@ def main():
 
     pop1_snp, pop2_snp, a_snp = readEigenstrat(args.p1), readEigenstrat(args.p2), readEigenstrat(args.a)
     print(pop1_snp)
-    print(pop1.shape)
-    print(pop2.shape)
-    print(pop3.shape)
+    print(pop1_snp.shape)
+    print(pop2_snp.shape)
+    print(pop3_snp.shape)
 
 if __name__ == '__main__':
     main()
