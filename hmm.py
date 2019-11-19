@@ -97,7 +97,7 @@ class HMM(object):
 
         for j in range(1, self.numSNP):
             T = self.transition(self.D[j])
-            f[j] = self.emission(obs, j).flatten()+logsumexp(f[j-1][:,np.newaxis]+T, axis=1)
+            f[j] = self.emission(obs, j).flatten()+logsumexp(f[j-1][:,np.newaxis]+T, axis=0)
         return f;
 
         
@@ -113,7 +113,7 @@ class HMM(object):
         for j in range(1, self.numSNP):
             T = self.transition(self.D[j])
             # using axis=1, logsumexp sum over each column of the transition matrix
-            f[:, j] = emis[j] + logsumexp(f[:,j-1][:,np.newaxis] + T, axis=1)
+            f[:, j] = emis[j] + logsumexp(f[:,j-1][:,np.newaxis] + T, axis=0)
         return f
 
 
@@ -148,10 +148,11 @@ class HMM(object):
         end= time.time()
         print(f'uncached version takes time {end-start}')
         print(f'forward probability:{logsumexp(f[:,-1])}')
-        print(f)
-        print(b)
-        print(emis[0])
-        print(f'backward last piece:{-math.log(self.n1+self.n2)+emis[0]+b[:,0]}')
+        #print(f'forward matrix is {f}')
+        #print(f'backward matrix is {b}')
+        #print(f'emission for the first site is {emis[0]}')
+        #print(f'total number of hidden states is {self.n1+self.n2}')
+        #print(f'backward last piece:{-math.log(self.n1+self.n2)+emis[0]+b[:,0]}')
         print(f'backward probability:{logsumexp(-math.log(self.n1+self.n2)+emis[0]+b[:,0])}')
         return 0
 
