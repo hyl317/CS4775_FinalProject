@@ -17,7 +17,7 @@ class HMM(object):
         #self.forward = np.full((n1+n2, numSNP), np.nan)
         #self.backward = np.full((n1+n2, numSNP), np.nan)
 
-    @profile
+    #@profile
     def transition(self, r):
         # calculate transition log probability matrix between two sites separated by distance r (measured in Morgan)
         numHiddenState = self.n1 + self.n2
@@ -69,7 +69,7 @@ class HMM(object):
         
         return T
 
-    @profile
+    #@profile
     def emission(self, obs_j, j):
         # return log probability of emission for site j
         pop1SNP, pop2SNP = self.pop1matrix[j][:,np.newaxis], self.pop2matrix[j][:,np.newaxis]
@@ -80,7 +80,7 @@ class HMM(object):
         emission = np.concatenate((pop1@theta_pop1, pop2@theta_pop2))
         return np.log(emission)
 
-    @profile
+    #@profile
     def emissionALL(self, obs):
         # precompute all emission probabilities for all sites
         # each SNP occupies a row, and each column correspond to a state
@@ -101,7 +101,7 @@ class HMM(object):
         return f;
 
         
-    @profile
+    #@profile
     def forward(self, obs, emis):
         # Given the observed haplotype, compute its forward matrix
         f = np.full((self.n1+self.n2, self.numSNP), np.nan)
@@ -117,7 +117,7 @@ class HMM(object):
         return f
 
 
-    @profile
+    #@profile
     def backward(self, obs, emis):
         # Given the observed haplotype, compute its backward matrix
         b = np.full((self.n1+self.n2, self.numSNP), np.nan)
@@ -127,10 +127,10 @@ class HMM(object):
         for j in range(self.numSNP-2, -1, -1):
             T = self.transition(self.D[j+1])
             b[:,j] = logsumexp(T + emis[j+1][:,np.newaxis] + b[:,j+1][:,np.newaxis],axis=1)
-
+        return b
     
     
-    @profile
+    #@profile
     def decode(self, obs):
         # infer hidden state of each SNP sites in the given haplotype
         # state[j] = 0 means site j was most likely copied from population 1 
@@ -146,9 +146,9 @@ class HMM(object):
         f = self.forward(obs, emis)
         b = self.backward(obs, emis)
         end= time.time()
-        print(f'uncached version takes time {end2-start2}')
-        printf(f'forward probability:{logsumexp(f[:,-1])}')
-        printf(f'backward probability:{logsumexp(-math.exp(self.n1+self.n2)+emis[0]+b[:,1])}')
+        print(f'uncached version takes time {end-start}')
+        print(f'forward probability:{logsumexp(f[:,-1])}')
+        print(f'backward probability:{logsumexp(-math.exp(self.n1+self.n2)+emis[0]+b[:,1])}')
         return 0
 
 
