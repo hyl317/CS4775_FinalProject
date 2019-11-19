@@ -159,6 +159,6 @@ class HMM(object):
         print(f'SNPindex\tposterior_prob_pop1\tposterior_prob_pop2')
         for j in range(self.numSNP):
             print(f'{j}\t{post_pop1[j]:.4e}\t{post_pop2[j]:.4e}')
-        return 0
+        return [0 if prob1 > prob2 else 1 for prob1, prob2 in zip(post_pop1, post_pop2)]
 
 

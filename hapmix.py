@@ -77,7 +77,18 @@ def main():
     hmmModel = hmm.HMM(pop1_snp, pop2_snp, args.mu, args.t, numSNP, n1, n2, rho1, rho2, theta1, theta2, D)
     for i in range(a_snp.shape[1]):
         states = hmmModel.decode(a_snp[:, i])
-
+        # find ancestry switching point
+        prev  = [states[0]]
+        prev += states[:,-1]
+        diff = states - prev
+        switch_points = np.where(diff != 0)
+        report = ''
+        for point in switch_points:
+            report += f'{prev[point]}:{point-1} '
+        
+        if switch_points[-1] != numSNP-1:
+            report += f'{states[-1]}:{numSNP-1}'
+        print(report)
 
 if __name__ == '__main__':
     main()
