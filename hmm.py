@@ -126,7 +126,7 @@ class HMM(object):
 
         for j in range(self.numSNP-2, -1, -1):
             T = self.transition(self.D[j+1])
-            b[:,j] = logsumexp(T + emis[j+1][:,np.newaxis] + b[:,j+1][:,np.newaxis],axis=1)
+            b[:,j] = logsumexp(T + emis[j+1] + b[:,j+1], axis=1)
         return b
     
     
@@ -148,8 +148,11 @@ class HMM(object):
         end= time.time()
         print(f'uncached version takes time {end-start}')
         print(f'forward probability:{logsumexp(f[:,-1])}')
-        print(f'backward last piece:{-math.exp(self.n1+self.n2)+emis[0]+b[:,1]}')
-        print(f'backward probability:{logsumexp(-math.exp(self.n1+self.n2)+emis[0]+b[:,1])}')
+        print(f)
+        print(b)
+        print(emis[0])
+        print(f'backward last piece:{-math.log(self.n1+self.n2)+emis[0]+b[:,0]}')
+        print(f'backward probability:{logsumexp(-math.log(self.n1+self.n2)+emis[0]+b[:,0])}')
         return 0
 
 
