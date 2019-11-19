@@ -1,5 +1,6 @@
 import numpy as np
 import math
+import multiprocessing
 from scipy.special import logsumexp
 import time
 
@@ -14,8 +15,7 @@ class HMM(object):
         self.rho1, self.rho2 = rho1, rho2
         self.theta1, self.theta2 = theta1, theta2
         self.D = D
-        #self.forward = np.full((n1+n2, numSNP), np.nan)
-        #self.backward = np.full((n1+n2, numSNP), np.nan)
+
 
     #@profile
     def transition(self, r):
@@ -102,11 +102,10 @@ class HMM(object):
 
         
     #@profile
-    def forward(self, obs, emis):
+    def forward(self, emis):
         # Given the observed haplotype, compute its forward matrix
         f = np.full((self.n1+self.n2, self.numSNP), np.nan)
         # initialization
-        #emission0 = self.emission(obs, 0)
         f[:,0] = (-math.log(self.n1+self.n2) + emis[0]).flatten()
         
          # fill in forward matrix
@@ -118,7 +117,7 @@ class HMM(object):
 
 
     #@profile
-    def backward(self, obs, emis):
+    def backward(self, emis):
         # Given the observed haplotype, compute its backward matrix
         b = np.full((self.n1+self.n2, self.numSNP), np.nan)
         # initialization
@@ -135,25 +134,31 @@ class HMM(object):
         # infer hidden state of each SNP sites in the given haplotype
         # state[j] = 0 means site j was most likely copied from population 1 
         # and state[j] = 1 means site j was most likely copies from population 2
-        
-        #start1 = time.time()
-        #f1 = self.forward_cache(obs)
-        #end1= time.time()
-        #print(f'cached version takes time {end1-start1}')
 
         start = time.time()
         emis = self.emissionALL(obs)
-        f = self.forward(obs, emis)
-        b = self.backward(obs, emis)
+        f = self.forward(emis)
+        b = self.backward(emis)
         end= time.time()
         print(f'uncached version takes time {end-start}')
         print(f'forward probability:{logsumexp(f[:,-1])}')
-        #print(f'forward matrix is {f}')
-        #print(f'backward matrix is {b}')
-        #print(f'emission for the first site is {emis[0]}')
-        #print(f'total number of hidden states is {self.n1+self.n2}')
-        #print(f'backward last piece:{-math.log(self.n1+self.n2)+emis[0]+b[:,0]}')
         print(f'backward probability:{logsumexp(-math.log(self.n1+self.n2)+emis[0]+b[:,0])}')
+
+        # posterior decoding
+        post = np.full((self.n1+self.n2, self.numSNP), np.nan)
+        for j in range(self.numSNP):
+            log_px = logsumexp(f[:,j]*b[:,j])
+            post[:,j] = np.exp(f[:,] + b[:,] - log_px) 
+
+        print(post)
+        post_pop1, post_pop2 = post[:self.n1], post[self.n1:self.n1+self.n2]
+        post_pop1, post_pop2 = np.sum(post_pop1, axis=0), np.sum(post_pop2, axis=0)
+        
+        with open('decode.txt','w') as out:
+            out.write(f'observed sequences:\n{obs}\n')
+            out.write(f'SNPindex\tposterior_prob_pop1\tposterior_prob_pop2')
+            for j in range(self.numSNP):
+                out.write(f'{j}\t{post_pop1[j]}\t{post_pop2[j]}')
         return 0
 
 
