@@ -148,6 +148,7 @@ class HMM(object):
         end= time.time()
         print(f'uncached version takes time {end-start}')
         print(f'forward probability:{logsumexp(f[:,-1])}')
+        print(f'backward last piece:{-math.exp(self.n1+self.n2)+emis[0]+b[:,1]}')
         print(f'backward probability:{logsumexp(-math.exp(self.n1+self.n2)+emis[0]+b[:,1])}')
         return 0
 
