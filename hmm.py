@@ -15,7 +15,7 @@ class HMM(object):
         self.rho1, self.rho2 = rho1, rho2
         self.theta1, self.theta2 = theta1, theta2
         self.D = D
-
+        self.initial = np.log(np.array([mu/n1]*n1 + [(1-mu)/n2]*n2))
 
     #@profile
     def transition(self, r):
@@ -106,7 +106,7 @@ class HMM(object):
         # Given the observed haplotype, compute its forward matrix
         f = np.full((self.n1+self.n2, self.numSNP), np.nan)
         # initialization
-        f[:,0] = (-math.log(self.n1+self.n2) + emis[0]).flatten()
+        f[:,0] = (self.initial + emis[0]).flatten()
         
          # fill in forward matrix
         for j in range(1, self.numSNP):
@@ -142,7 +142,7 @@ class HMM(object):
         end= time.time()
         print(f'uncached version takes time {end-start}')
         print(f'forward probability:{logsumexp(f[:,-1])}')
-        print(f'backward probability:{logsumexp(-math.log(self.n1+self.n2)+emis[0]+b[:,0])}')
+        print(f'backward probability:{logsumexp(self.initial + emis[0] + b[:,0])}')
 
         # posterior decoding
         post = np.full((self.n1+self.n2, self.numSNP), np.nan)
@@ -150,7 +150,6 @@ class HMM(object):
             log_px = logsumexp(f[:,j] + b[:,j])
             post[:,j] = np.exp(f[:,j] + b[:,j] - log_px) 
 
-        #print(post)
         post_pop1, post_pop2 = post[:self.n1], post[self.n1:self.n1+self.n2]
         post_pop1, post_pop2 = np.sum(post_pop1, axis=0), np.sum(post_pop2, axis=0)
         
