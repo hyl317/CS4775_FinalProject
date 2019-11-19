@@ -150,15 +150,15 @@ class HMM(object):
             log_px = logsumexp(f[:,j] + b[:,j])
             post[:,j] = np.exp(f[:,j] + b[:,j] - log_px) 
 
-        print(post)
+        #print(post)
         post_pop1, post_pop2 = post[:self.n1], post[self.n1:self.n1+self.n2]
         post_pop1, post_pop2 = np.sum(post_pop1, axis=0), np.sum(post_pop2, axis=0)
         
         #with open('decode.txt','w') as out:
-        print(f'observed sequences:\n{obs}')
-        print(f'SNPindex\tposterior_prob_pop1\tposterior_prob_pop2')
-        for j in range(self.numSNP):
-            print(f'{j}\t{post_pop1[j]:.4e}\t{post_pop2[j]:.4e}')
+        #print(f'observed sequences:\n{obs}')
+        #print(f'SNPindex\tposterior_prob_pop1\tposterior_prob_pop2')
+        #for j in range(self.numSNP):
+        #    print(f'{j}\t{post_pop1[j]:.4e}\t{post_pop2[j]:.4e}')
         return [0 if prob1 > prob2 else 1 for prob1, prob2 in zip(post_pop1, post_pop2)]
 
 
