@@ -147,18 +147,18 @@ class HMM(object):
         # posterior decoding
         post = np.full((self.n1+self.n2, self.numSNP), np.nan)
         for j in range(self.numSNP):
-            log_px = logsumexp(f[:,j]*b[:,j])
-            post[:,j] = np.exp(f[:,] + b[:,] - log_px) 
+            log_px = logsumexp(f[:,j] + b[:,j])
+            post[:,j] = np.exp(f[:,j] + b[:,j] - log_px) 
 
         print(post)
         post_pop1, post_pop2 = post[:self.n1], post[self.n1:self.n1+self.n2]
         post_pop1, post_pop2 = np.sum(post_pop1, axis=0), np.sum(post_pop2, axis=0)
         
-        with open('decode.txt','w') as out:
-            out.write(f'observed sequences:\n{obs}\n')
-            out.write(f'SNPindex\tposterior_prob_pop1\tposterior_prob_pop2')
-            for j in range(self.numSNP):
-                out.write(f'{j}\t{post_pop1[j]}\t{post_pop2[j]}')
+        #with open('decode.txt','w') as out:
+        print(f'observed sequences:\n{obs}')
+        print(f'SNPindex\tposterior_prob_pop1\tposterior_prob_pop2')
+        for j in range(self.numSNP):
+            print(f'{j}\t{post_pop1[j]:.4e}\t{post_pop2[j]:.4e}')
         return 0
 
 
