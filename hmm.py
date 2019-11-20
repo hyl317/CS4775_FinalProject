@@ -106,10 +106,10 @@ class HMM(object):
 
         
     #@profile
-    @jit(fastmath=True, parallel=True)
+    @jit(nopython=True)
     def forward(self, emis):
         # Given the observed haplotype, compute its forward matrix
-        f = np.full((self.n1+self.n2, self.numSNP), np.nan)
+        f = np.zeros((self.n1+self.n2, self.numSNP))
         # initialization
         f[:,0] = (self.initial + emis[0]).flatten()
         
@@ -122,10 +122,10 @@ class HMM(object):
 
 
     #@profile
-    @jit(fastmath=True, parallel=True)
+    @jit(nopython=True)
     def backward(self, emis):
         # Given the observed haplotype, compute its backward matrix
-        b = np.full((self.n1+self.n2, self.numSNP), np.nan)
+        b = np.zeros((self.n1+self.n2, self.numSNP))
         # initialization
         b[:, self.numSNP-1] = np.full(self.n1+self.n2, 0)
 
@@ -134,10 +134,10 @@ class HMM(object):
             b[:,j] = logsumexp(T + emis[j+1] + b[:,j+1], axis=1)
         return b
     
-    @jit(fastmath=True, parallel=True)
+    @jit(nopython=True)
     def posterior(self, f, b):
         # posterior decoding
-        post = np.full((self.n1+self.n2, self.numSNP), np.nan)
+        post = np.zeros((self.n1+self.n2, self.numSNP))
         for j in range(self.numSNP):
             log_px = logsumexp(f[:,j] + b[:,j])
             post[:,j] = np.exp(f[:,j] + b[:,j] - log_px) 
