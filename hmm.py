@@ -134,7 +134,6 @@ class HMM(object):
     
     
     #@profile
-    @jit
     def decode(self, obs):
         # infer hidden state of each SNP sites in the given haplotype
         # state[j] = 0 means site j was most likely copied from population 1 

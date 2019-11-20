@@ -40,7 +40,6 @@ def readGeneticMap(file):
         p = list(map(int, p))
         return np.array(D), np.array(p)
 
-@jit
 def main():
     parser = argparse.ArgumentParser(description='Local Ancestry Inference as implemented in Hapmix.')
     parser.add_argument('-p1', action="store", dest="p1", type=str, help='eigenstrat SNP file for ancestral population 1 (eg. CEU)')
