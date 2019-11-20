@@ -19,6 +19,7 @@ class HMM(object):
         self.initial = np.log(np.array([mu/n1]*n1 + [(1-mu)/n2]*n2))
 
     #@profile
+    @jit(nopython=True)
     def transition(self, r):
         # calculate transition log probability matrix between two sites separated by distance r (measured in Morgan)
         numHiddenState = self.n1 + self.n2
@@ -71,6 +72,7 @@ class HMM(object):
         return T
 
     #@profile
+    @jit(nopython=True)
     def emission(self, obs_j, j):
         # return log probability of emission for site j
         pop1SNP, pop2SNP = self.pop1matrix[j][:,np.newaxis], self.pop2matrix[j][:,np.newaxis]
@@ -82,7 +84,7 @@ class HMM(object):
         return np.log(emission)
 
     #@profile
-    @jit
+    @jit(nopython=True)
     def emissionALL(self, obs):
         # precompute all emission probabilities for all sites
         # each SNP occupies a row, and each column correspond to a state
@@ -104,7 +106,7 @@ class HMM(object):
 
         
     #@profile
-    @jit
+    @jit(nopython=True)
     def forward(self, emis):
         # Given the observed haplotype, compute its forward matrix
         f = np.full((self.n1+self.n2, self.numSNP), np.nan)
@@ -120,7 +122,7 @@ class HMM(object):
 
 
     #@profile
-    @jit
+    @jit(nopython=True)
     def backward(self, emis):
         # Given the observed haplotype, compute its backward matrix
         b = np.full((self.n1+self.n2, self.numSNP), np.nan)
@@ -132,6 +134,17 @@ class HMM(object):
             b[:,j] = logsumexp(T + emis[j+1] + b[:,j+1], axis=1)
         return b
     
+    @jit(nopython=True)
+    def posterior(self, f, b):
+        # posterior decoding
+        post = np.full((self.n1+self.n2, self.numSNP), np.nan)
+        for j in range(self.numSNP):
+            log_px = logsumexp(f[:,j] + b[:,j])
+            post[:,j] = np.exp(f[:,j] + b[:,j] - log_px) 
+
+        post_pop1, post_pop2 = post[:self.n1], post[self.n1:self.n1+self.n2]
+        post_pop1, post_pop2 = np.sum(post_pop1, axis=0), np.sum(post_pop2, axis=0)
+        return post_pop1, post_pop2
     
     #@profile
     def decode(self, obs):
@@ -143,25 +156,12 @@ class HMM(object):
         emis = self.emissionALL(obs)
         f = self.forward(emis)
         b = self.backward(emis)
-        end= time.time()
+        end = time.time()
         print(f'uncached version takes time {end-start}')
         print(f'forward probability:{logsumexp(f[:,-1])}')
         print(f'backward probability:{logsumexp(self.initial + emis[0] + b[:,0])}')
 
-        # posterior decoding
-        post = np.full((self.n1+self.n2, self.numSNP), np.nan)
-        for j in range(self.numSNP):
-            log_px = logsumexp(f[:,j] + b[:,j])
-            post[:,j] = np.exp(f[:,j] + b[:,j] - log_px) 
-
-        post_pop1, post_pop2 = post[:self.n1], post[self.n1:self.n1+self.n2]
-        post_pop1, post_pop2 = np.sum(post_pop1, axis=0), np.sum(post_pop2, axis=0)
-        
-        #with open('decode.txt','w') as out:
-        #print(f'observed sequences:\n{obs}')
-        #print(f'SNPindex\tposterior_prob_pop1\tposterior_prob_pop2')
-        #for j in range(self.numSNP):
-        #    print(f'{j}\t{post_pop1[j]:.4e}\t{post_pop2[j]:.4e}')
+        post_pop1, post_pop2 = self.posterior(f,b)
         return [0 if prob1 > prob2 else 1 for prob1, prob2 in zip(post_pop1, post_pop2)]
 
 
