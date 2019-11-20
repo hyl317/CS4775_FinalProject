@@ -106,7 +106,7 @@ class HMM(object):
 
         
     #@profile
-    @jit(fastmath=True)
+    @jit(fastmath=True, parallel=True)
     def forward(self, emis):
         # Given the observed haplotype, compute its forward matrix
         f = np.full((self.n1+self.n2, self.numSNP), np.nan)
@@ -122,7 +122,7 @@ class HMM(object):
 
 
     #@profile
-    @jit(fastmath=True)
+    @jit(fastmath=True, parallel=True)
     def backward(self, emis):
         # Given the observed haplotype, compute its backward matrix
         b = np.full((self.n1+self.n2, self.numSNP), np.nan)
@@ -134,7 +134,7 @@ class HMM(object):
             b[:,j] = logsumexp(T + emis[j+1] + b[:,j+1], axis=1)
         return b
     
-    @jit(fastmath=True)
+    @jit(fastmath=True, parallel=True)
     def posterior(self, f, b):
         # posterior decoding
         post = np.full((self.n1+self.n2, self.numSNP), np.nan)
