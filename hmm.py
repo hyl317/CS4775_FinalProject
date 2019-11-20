@@ -1,6 +1,7 @@
 import numpy as np
 import math
 import multiprocessing
+from numba import jit
 from scipy.special import logsumexp
 import time
 
@@ -81,6 +82,7 @@ class HMM(object):
         return np.log(emission)
 
     #@profile
+    @jit
     def emissionALL(self, obs):
         # precompute all emission probabilities for all sites
         # each SNP occupies a row, and each column correspond to a state
@@ -102,6 +104,7 @@ class HMM(object):
 
         
     #@profile
+    @jit
     def forward(self, emis):
         # Given the observed haplotype, compute its forward matrix
         f = np.full((self.n1+self.n2, self.numSNP), np.nan)
@@ -117,6 +120,7 @@ class HMM(object):
 
 
     #@profile
+    @jit
     def backward(self, emis):
         # Given the observed haplotype, compute its backward matrix
         b = np.full((self.n1+self.n2, self.numSNP), np.nan)
@@ -130,6 +134,7 @@ class HMM(object):
     
     
     #@profile
+    @jit
     def decode(self, obs):
         # infer hidden state of each SNP sites in the given haplotype
         # state[j] = 0 means site j was most likely copied from population 1 
