@@ -19,7 +19,7 @@ class HMM(object):
         self.initial = np.log(np.array([mu/n1]*n1 + [(1-mu)/n2]*n2))
 
     #@profile
-    @jit(nopython=True)
+    @jit
     def transition(self, r):
         # calculate transition log probability matrix between two sites separated by distance r (measured in Morgan)
         numHiddenState = self.n1 + self.n2
@@ -72,7 +72,7 @@ class HMM(object):
         return T
 
     #@profile
-    @jit(nopython=True)
+    #@jit(nopython=True)
     def emission(self, obs_j, j):
         # return log probability of emission for site j
         pop1SNP, pop2SNP = self.pop1matrix[j][:,np.newaxis], self.pop2matrix[j][:,np.newaxis]
@@ -84,7 +84,7 @@ class HMM(object):
         return np.log(emission)
 
     #@profile
-    @jit(nopython=True)
+    #@jit(nopython=True)
     def emissionALL(self, obs):
         # precompute all emission probabilities for all sites
         # each SNP occupies a row, and each column correspond to a state
@@ -106,7 +106,7 @@ class HMM(object):
 
         
     #@profile
-    @jit(nopython=True)
+    @jit
     def forward(self, emis):
         # Given the observed haplotype, compute its forward matrix
         f = np.full((self.n1+self.n2, self.numSNP), np.nan)
@@ -122,7 +122,7 @@ class HMM(object):
 
 
     #@profile
-    @jit(nopython=True)
+    @jit
     def backward(self, emis):
         # Given the observed haplotype, compute its backward matrix
         b = np.full((self.n1+self.n2, self.numSNP), np.nan)
@@ -134,7 +134,7 @@ class HMM(object):
             b[:,j] = logsumexp(T + emis[j+1] + b[:,j+1], axis=1)
         return b
     
-    @jit(nopython=True)
+    @jit
     def posterior(self, f, b):
         # posterior decoding
         post = np.full((self.n1+self.n2, self.numSNP), np.nan)
