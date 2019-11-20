@@ -88,7 +88,7 @@ class HMM(object):
     def emissionALL(self, obs):
         # precompute all emission probabilities for all sites
         # each SNP occupies a row, and each column correspond to a state
-        emis = np.full((self.numSNP, self.n1+self.n2), np.nan)
+        emis = np.zeros((self.numSNP, self.n1+self.n2))
         for j in range(self.numSNP):
             emis[j] = self.emission(obs[j], j).flatten()
         return emis
