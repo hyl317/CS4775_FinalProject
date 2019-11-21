@@ -96,14 +96,14 @@ class HMM(object):
         
     #@profile
     @jit(nopython=True, parallel=True)
-    def forward(self, emis):
+    def forward(self, emis, nrow, ncol):
         # Given the observed haplotype, compute its forward matrix
-        f = np.zeros((self.n1+self.n2, self.numSNP))
+        f = np.zeros((nrow, ncol))
         # initialization
         f[:,0] = (self.initial + emis[0]).flatten()
         
          # fill in forward matrix
-        for j in range(1, self.numSNP):
+        for j in range(1, ncol):
             T = self.transition(self.D[j])
             # using axis=1, logsumexp sum over each row of the transition matrix
             #f[:, j] = emis[j] + logsumexp(f[:,j-1][:,np.newaxis] + T, axis=0)
@@ -113,28 +113,28 @@ class HMM(object):
 
     #@profile
     @jit(nopython=True, parallel=True)
-    def backward(self, emis):
+    def backward(self, emis, nrow, ncol):
         # Given the observed haplotype, compute its backward matrix
-        b = np.zeros((self.n1+self.n2, self.numSNP))
+        b = np.zeros((nrow, ncol))
         # initialization
-        b[:, self.numSNP-1] = np.full(self.n1+self.n2, 0)
+        b[:, ncol-1] = np.full(nrow, 0)
 
-        for j in range(self.numSNP-2, -1, -1):
+        for j in range(ncol-2, -1, -1):
             T = self.transition(self.D[j+1])
             #b[:,j] = logsumexp(T + emis[j+1] + b[:,j+1], axis=1)
             b[:,j] = helper.logsumexp(T + emis[j+1] + b[:,j+1], axis=1)
         return b
     
     @jit(nopython=True, parallel=True)
-    def posterior(self, f, b):
+    def posterior(self, f, b, n1, n2, ncol):
         # posterior decoding
-        post = np.zeros((self.n1+self.n2, self.numSNP))
-        for j in range(self.numSNP):
+        post = np.zeros((n1+n2, ncol))
+        for j in range(ncol):
             #log_px = logsumexp(f[:,j] + b[:,j])
             log_px = helper.logsumexp(f[:,j] + b[:,j])
             post[:,j] = np.exp(f[:,j] + b[:,j] - log_px) 
 
-        post_pop1, post_pop2 = post[:self.n1], post[self.n1:self.n1+self.n2]
+        post_pop1, post_pop2 = post[:n1], post[n1:n1 + n2]
         post_pop1, post_pop2 = np.sum(post_pop1, axis=0), np.sum(post_pop2, axis=0)
         return post_pop1, post_pop2
     
@@ -146,14 +146,14 @@ class HMM(object):
 
         start = time.time()
         emis = self.emissionALL(obs)
-        f = self.forward(emis)
-        b = self.backward(emis)
+        f = self.forward(emis, self.n1+self.n2, self.numSNP)
+        b = self.backward(emis, self.n1+self.n2, self.numSNP)
         end = time.time()
         print(f'uncached version takes time {end-start}')
         print(f'forward probability:{logsumexp(f[:,-1])}')
         print(f'backward probability:{logsumexp(self.initial + emis[0] + b[:,0])}')
 
-        post_pop1, post_pop2 = self.posterior(f,b)
+        post_pop1, post_pop2 = self.posterior(f,b, self.n1, self.n2, self.numSNP)
         return [0 if prob1 > prob2 else 1 for prob1, prob2 in zip(post_pop1, post_pop2)]
 
 
