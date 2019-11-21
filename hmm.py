@@ -116,13 +116,16 @@ class HMM(object):
     def backward(self, emis, nrow, ncol):
         # Given the observed haplotype, compute its backward matrix
         b = np.zeros((nrow, ncol))
+        #print("here")
         # initialization
         b[:, ncol-1] = np.full(nrow, 0)
-
+        #print("here2")
         for j in range(ncol-2, -1, -1):
             T = self.transition(self.D[j+1])
+            #print("here3")
             #b[:,j] = logsumexp(T + emis[j+1] + b[:,j+1], axis=1)
             b[:,j] = helper.logsumexp(T + emis[j+1] + b[:,j+1], axis=1)
+            #print("here4")
         return b
     
     @jit
