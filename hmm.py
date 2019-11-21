@@ -3,7 +3,7 @@ import math
 import multiprocessing
 from numba import jit
 from scipy.special import logsumexp
-import helper
+#import helper
 import time
 
 class HMM(object):
@@ -95,7 +95,7 @@ class HMM(object):
 
         
     #@profile
-    @jit(nopython=True, parallel=True)
+    @jit
     def forward(self, emis, nrow, ncol):
         # Given the observed haplotype, compute its forward matrix
         f = np.zeros((nrow, ncol))
@@ -106,13 +106,13 @@ class HMM(object):
         for j in range(1, ncol):
             T = self.transition(self.D[j])
             # using axis=1, logsumexp sum over each row of the transition matrix
-            #f[:, j] = emis[j] + logsumexp(f[:,j-1][:,np.newaxis] + T, axis=0)
-            f[:, j] = emis[j] + helper.logsumexp(f[:,j-1][:,np.newaxis] + T, axis=0)
+            f[:, j] = emis[j] + logsumexp(f[:,j-1][:,np.newaxis] + T, axis=0)
+            #f[:, j] = emis[j] + helper.logsumexp(f[:,j-1][:,np.newaxis] + T, axis=0)
         return f
 
 
     #@profile
-    @jit(nopython=True, parallel=True)
+    @jit
     def backward(self, emis, nrow, ncol):
         # Given the observed haplotype, compute its backward matrix
         b = np.zeros((nrow, ncol))
@@ -121,17 +121,17 @@ class HMM(object):
 
         for j in range(ncol-2, -1, -1):
             T = self.transition(self.D[j+1])
-            #b[:,j] = logsumexp(T + emis[j+1] + b[:,j+1], axis=1)
-            b[:,j] = helper.logsumexp(T + emis[j+1] + b[:,j+1], axis=1)
+            b[:,j] = logsumexp(T + emis[j+1] + b[:,j+1], axis=1)
+            #b[:,j] = helper.logsumexp(T + emis[j+1] + b[:,j+1], axis=1)
         return b
     
-    @jit(nopython=True, parallel=True)
+    @jit
     def posterior(self, f, b, n1, n2, ncol):
         # posterior decoding
         post = np.zeros((n1+n2, ncol))
         for j in range(ncol):
-            #log_px = logsumexp(f[:,j] + b[:,j])
-            log_px = helper.logsumexp(f[:,j] + b[:,j])
+            log_px = logsumexp(f[:,j] + b[:,j])
+            #log_px = helper.logsumexp(f[:,j] + b[:,j])
             post[:,j] = np.exp(f[:,j] + b[:,j] - log_px) 
 
         post_pop1, post_pop2 = post[:n1], post[n1:n1 + n2]
