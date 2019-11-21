@@ -2,7 +2,7 @@
 
 import numpy as np
 
-def logsumexp(a, axis=None, keepdims=False):
+def logsumexp(a, axis=None):
     a_max = np.amax(a, axis=axis, keepdims=True)
 
     if a_max.ndim > 0:
@@ -12,11 +12,8 @@ def logsumexp(a, axis=None, keepdims=False):
 
     tmp = np.exp(a - a_max)
     with np.errstate(divide='ignore'):
-        s = np.sum(tmp, axis=axis, keepdims=keepdims)
+        s = np.sum(tmp, axis=axis)
         out = np.log(s)
-
-    if not keepdims:
-        a_max = np.squeeze(a_max, axis=axis)
 
     return out+a_max
 
