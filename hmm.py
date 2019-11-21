@@ -3,6 +3,7 @@ import math
 import multiprocessing
 from numba import jit
 from scipy.special import logsumexp
+import helper
 import time
 
 class HMM(object):
@@ -19,7 +20,6 @@ class HMM(object):
         self.initial = np.log(np.array([mu/n1]*n1 + [(1-mu)/n2]*n2))
 
     #@profile
-    @jit
     def transition(self, r):
         # calculate transition log probability matrix between two sites separated by distance r (measured in Morgan)
         numHiddenState = self.n1 + self.n2
@@ -93,20 +93,9 @@ class HMM(object):
             emis[j] = self.emission(obs[j], j).flatten()
         return emis
 
-    def forward_cache(self, obs):
-        f = np.full((self.numSNP, self.n1+self.n2), np.nan)
-        #initialization
-        emission0 = self.emission(obs, 0)
-        f[0,:] = (-math.log(self.n1+self.n2) + emission0).flatten()
-
-        for j in range(1, self.numSNP):
-            T = self.transition(self.D[j])
-            f[j] = self.emission(obs, j).flatten()+logsumexp(f[j-1][:,np.newaxis]+T, axis=0)
-        return f;
-
         
     #@profile
-    @jit(nopython=True)
+    @jit(nopython=True, parallel=True)
     def forward(self, emis):
         # Given the observed haplotype, compute its forward matrix
         f = np.zeros((self.n1+self.n2, self.numSNP))
@@ -116,13 +105,14 @@ class HMM(object):
          # fill in forward matrix
         for j in range(1, self.numSNP):
             T = self.transition(self.D[j])
-            # using axis=1, logsumexp sum over each column of the transition matrix
-            f[:, j] = emis[j] + logsumexp(f[:,j-1][:,np.newaxis] + T, axis=0)
+            # using axis=1, logsumexp sum over each row of the transition matrix
+            #f[:, j] = emis[j] + logsumexp(f[:,j-1][:,np.newaxis] + T, axis=0)
+            f[:, j] = emis[j] + helper.logsumexp(f[:,j-1][:,np.newaxis] + T, axis=0)
         return f
 
 
     #@profile
-    @jit(nopython=True)
+    @jit(nopython=True, parallel=True)
     def backward(self, emis):
         # Given the observed haplotype, compute its backward matrix
         b = np.zeros((self.n1+self.n2, self.numSNP))
@@ -131,15 +121,17 @@ class HMM(object):
 
         for j in range(self.numSNP-2, -1, -1):
             T = self.transition(self.D[j+1])
-            b[:,j] = logsumexp(T + emis[j+1] + b[:,j+1], axis=1)
+            #b[:,j] = logsumexp(T + emis[j+1] + b[:,j+1], axis=1)
+            b[:,j] = helper.logsumexp(T + emis[j+1] + b[:,j+1], axis=1)
         return b
     
-    @jit(nopython=True)
+    @jit(nopython=True, parallel=True)
     def posterior(self, f, b):
         # posterior decoding
         post = np.zeros((self.n1+self.n2, self.numSNP))
         for j in range(self.numSNP):
-            log_px = logsumexp(f[:,j] + b[:,j])
+            #log_px = logsumexp(f[:,j] + b[:,j])
+            log_px = helper.logsumexp(f[:,j] + b[:,j])
             post[:,j] = np.exp(f[:,j] + b[:,j] - log_px) 
 
         post_pop1, post_pop2 = post[:self.n1], post[self.n1:self.n1+self.n2]
