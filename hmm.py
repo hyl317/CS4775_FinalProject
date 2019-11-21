@@ -146,14 +146,16 @@ class HMM(object):
 
         start = time.time()
         emis = self.emissionALL(obs)
-        f = self.forward(emis, self.n1+self.n2, self.numSNP)
-        b = self.backward(emis, self.n1+self.n2, self.numSNP)
+        n1, n2 = self.n1, self.n2
+        ncol = self.numSNP
+        f = self.forward(emis, n1+n2, ncol)
+        b = self.backward(emis, n1+n2, ncol)
         end = time.time()
         print(f'uncached version takes time {end-start}')
         print(f'forward probability:{logsumexp(f[:,-1])}')
         print(f'backward probability:{logsumexp(self.initial + emis[0] + b[:,0])}')
 
-        post_pop1, post_pop2 = self.posterior(f,b, self.n1, self.n2, self.numSNP)
+        post_pop1, post_pop2 = self.posterior(f,b, n1, n2, ncol)
         return [0 if prob1 > prob2 else 1 for prob1, prob2 in zip(post_pop1, post_pop2)]
 
 
