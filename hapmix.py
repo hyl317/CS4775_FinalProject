@@ -81,10 +81,11 @@ def main():
     with open('decode.numba.txt','w') as output:
         for i in range(a_snp.shape[1]):
             b_fast = hmmModel_fast.decode(a_snp[:, i])
-            b = hmmModel.decode(a_snp[:,j])
-            print(f"from fast hmm:{b[:-2]}")
-            print(f"from normal  hmm:{b[:-2}")
-            print(np.sum(b[:-2] != b_fast[:-2]))
+            b = hmmModel.decode(a_snp[:,i])
+            print(f"from fast hmm:{b_fast[:,-2]}")
+            print(f"from normal  hmm:{b[:,-2]}")
+            print(f"diff:{b_fast[:,-2]-b[:,-2]}")
+            print(np.where(np.isclose(b[:,-2], b_fast[:,-2])))
             break
             # find ancestry switching point
             prev  = [states[0]] + states[:numSNP-1]
