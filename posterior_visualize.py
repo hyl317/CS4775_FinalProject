@@ -33,15 +33,25 @@ def plot(posterior, pop1, count, dir, true_Ancestry=None):
     plt.ylabel(f'Posterior Probability of Belonging to {pop1}')
     plt.ylim(0, 1.1)
 
-    ax = plt.gca()
-    prev = 0
+    pop1_interval = []
+    prev_pop, prev_snp = None, 0
     for switch in true_Ancestry:
         pop, curr = switch.split(':')
         pop, curr = int(pop), int(curr)
         if pop == 0:
-            rect = patches.Rectangle((prev+1, 0), curr-prev, 1, alpha=0.5, color="grey")
-            ax.add_patch(rect)
-        prev = curr
+            if prev_pop == None:
+                pop1_interval.append((0, curr))
+            elif prev_pop == 0:
+                temp = pop1_interval[-1]
+                pop1_interval[-1] = (temp[0], curr)
+            else:
+                pop1_interval.append(prev+1, curr)
+        prev_pop, prev_snp = pop, curr
+
+    ax = plt.gca()
+    for interval in pop1_interval:
+        rect = patches.Rectangle((interval[0], 0), interval[1]-interval[0]+1, 1, alpha=0.5, color="grey")
+        ax.add_patch(rect)
 
     plt.savefig(f'./{dir}/posterior.vs.ref.{count}.png')
 
