@@ -54,8 +54,16 @@ def calibrate(decodeFile, refAncestryFile, bin=0.05):
         sys.exit()
 
     numBins = int(1/bin)
+    post = []
+    empirical = []
     for i in range(numBins):
-        break
+        locs = np.where(np.logical_and(posteriorMatrix >= i*bin, posterior < (i+1)*bin))
+        meanPosterior = np.mean(posteriorMatrix[locs])
+        empiricalFreq = np.sum(ancestryMatrix[locs] == 0)/len(locs)
+        post.append(meanPosterior)
+        empirical.append(empiricalFreq)
+    return post, empirical
+
 
 
 def main():
