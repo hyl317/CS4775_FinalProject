@@ -81,17 +81,17 @@ def main():
         for i in range(a_snp.shape[1]):
             states = hmmModel.decode(a_snp[:, i])
             # find ancestry switching point
-            #prev  = [states[0]] + states[:numSNP-1]
-            #diff = np.array(states) - np.array(prev)
-            #switch_points = np.where(diff != 0)[0]
-            #print(switch_points)
-            #report = ''
-            #for point in switch_points:
-            #    report += f'{prev[point]}:{point-1} '
+            prev  = [states[0]] + states[:numSNP-1]
+            diff = np.array(states) - np.array(prev)
+            switch_points = np.where(diff != 0)[0]
+            print(switch_points)
+            report = ''
+            for point in switch_points:
+                report += f'{prev[point]}:{point-1} '
         
-            #if np.all(diff == 0) or switch_points[-1] != numSNP-1:
-            #    report += f'{states[-1]}:{numSNP-1}'
-            #output.write(f'{report}\n')
+            if np.all(diff == 0) or switch_points[-1] != numSNP-1:
+                report += f'{states[-1]}:{numSNP-1}'
+            output.write(f'{report}\n')
 
 if __name__ == '__main__':
     main()
