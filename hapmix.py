@@ -75,18 +75,11 @@ def main():
     print(f'rho1={rho1},rho2={rho2}')
     print(f'theta1={theta1},theta2={theta2}')
 
-    hmmModel_fast = hmm_fast.HMM(pop1_snp, pop2_snp, args.mu, args.t, numSNP, n1, n2, rho1, rho2, theta1, theta2, D)
-    hmmModel = hmm.HMM(pop1_snp, pop2_snp, args.mu, args.t, numSNP, n1, n2, rho1, rho2, theta1, theta2, D)
+    hmmModel = hmm_fast.HMM(pop1_snp, pop2_snp, args.mu, args.t, numSNP, n1, n2, rho1, rho2, theta1, theta2, D)
 
     with open('decode.numba.txt','w') as output:
         for i in range(a_snp.shape[1]):
-            b_fast = hmmModel_fast.decode(a_snp[:, i])
-            b = hmmModel.decode(a_snp[:,i])
-            print(f"from fast hmm:{b_fast[:,-2]}")
-            print(f"from normal  hmm:{b[:,-2]}")
-            print(f"diff:{b_fast[:,-2]-b[:,-2]}")
-            print(np.where(np.isclose(b[:,-2], b_fast[:,-2])))
-            break
+            states = hmmModel.decode(a_snp[:, i])
             # find ancestry switching point
             prev  = [states[0]] + states[:numSNP-1]
             diff = np.array(states) - np.array(prev)
