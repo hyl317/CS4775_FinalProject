@@ -1,22 +1,23 @@
 # plot the posterior probability of belonging to population 1(specified via -p1) along a single chromosome
-# If true ancestry is provided(in a simulation setting), regions trully belonging to population 1 are shaded
-# note in admix-simu, the population 1 is indexed with 0
 
 import argparse
 import gzip
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
+import io
 
-def referenceprovided(decode, reference):
-    with gzip.open(decode,'rb') as posterior:
-        with open(reference, 'r') as ref:
+def referenceprovided(decode, reference, dir):
+    with gzip.open(decode) as posterior:
+        with io.BufferedReader(posterior) as posterior, open(reference, 'r') as ref:
             pop1, pop2 = ref.readline().strip().split(' ')
             count = 1
             for post in posterior:
                 referenceAncestry = ref.readline().strip().split(' ')
-                plot(post.strip().split('\t'), pop1, count, referenceAncestry)
-                count++
+                post = post.decode('latin1')
+                post = post.strip().split('\t')
+                plot(post, pop1, count, dir, referenceAncestry)
+                count += 1
                 break
 
 
@@ -25,9 +26,9 @@ def noReference(decode):
 
 
 
-def plot(posterior, pop1, count, true_Ancestry=None):
-    posterior = list(map(int, posterior))
-    plt.plot(np.arange(len(posterior)), posterior, linewidth=5)
+def plot(posterior, pop1, count, dir, true_Ancestry=None):
+    posterior = list(map(float, posterior))
+    plt.plot(np.arange(len(posterior)), posterior, linewidth=3, color='black')
     plt.xlabel('SNP site along the chromosome')
     plt.ylabel(f'Posterior Probability of Belonging to {pop1}')
     plt.ylim(0, 1.1)
@@ -38,10 +39,11 @@ def plot(posterior, pop1, count, true_Ancestry=None):
         pop, curr = switch.split(':')
         pop, curr = int(pop), int(curr)
         if pop == 0:
-            rect = patches.Rectangle((prev, 0), curr, 1, alpha=0.5, color="grey")
+            rect = patches.Rectangle((prev+1, 0), curr-prev, 1, alpha=0.5, color="grey")
             ax.add_patch(rect)
+        prev = curr
 
-    plt.savefig(f'posterior.vs.ref.{count}.png')
+    plt.savefig(f'./{dir}/posterior.vs.ref.{count}.png')
 
 
 
@@ -54,7 +56,7 @@ def main():
     args = parser.parse_args()
 
     if args.r != None:
-        referenceprovided(args.p, args.r)
+        referenceprovided(args.p, args.r, args.o)
     else:
         noReference(args.p)
 
