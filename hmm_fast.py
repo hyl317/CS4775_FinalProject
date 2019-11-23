@@ -18,7 +18,7 @@ class HMM(object):
         self.initial = np.log(np.array([mu/n1]*n1 + [(1-mu)/n2]*n2))
 
     def transition(self, r):
-        noAncestrySwitch = math.exp(-r*self.T)
+        noAncestrySwitch = math.exp(-r*self.t)
         noRecomb1, noRecomb2 = math.exp(-r*self.rho1), math.exp(-r*self.rho2)
         return noAncestrySwitch, noRecomb1, noRecomb2
 
@@ -57,22 +57,23 @@ class HMM(object):
             term1_pop1 = logsumexp(np.log(noAncestrySwitch) + np.log(1-noRecomb1) - np.log(self.n1) + f[:self.n1, j-1])
             term1_pop2 = logsumexp(np.log(noAncestrySwitch) + np.log(1-noRecomb2) - np.log(self.n2) + f[self.n1:, j-1])
             #last term is only for i=l and n=k
-            term2_pop1 = np.log(noAncestrySwitch) + np.log(noRebom1) + f[:self.n1, j-1]
+            term2_pop1 = np.log(noAncestrySwitch) + np.log(noRecomb1) + f[:self.n1, j-1]
             term2_pop2 = np.log(noAncestrySwitch) + np.log(noRecomb2) + f[self.n1:, j-1]
 
             temp = np.concatenate((np.repeat(common_pop1, self.n1), np.repeat(common_pop2, self.n2)), axis=0)
-            temp[:self.n1] = np.apply_along_axis(np.logaddexp, 0, term1_pop1 + temp[:self.n1])
-            temp[self.n1:] = np.apply_along_axis(np.logaddexp, 0, term2_pop2 + temp[self.n1:])
-
-            temp[:self.n1] = np.apply_along_axis(np.logaddexp, 0, term2_pop1 + temp[:self.n1])
-            temp[self.n1:] = np.apply_along_axis(np.logaddexp, 0, term2_pop2 + temp[self.n1:])
+            #print(temp.shape)
+            temp[:self.n1] = np.apply_along_axis(np.logaddexp, 0, np.repeat(term1_pop1, self.n1), temp[:self.n1])
+            temp[self.n1:] = np.apply_along_axis(np.logaddexp, 0, np.repeat(term1_pop2, self.n2), temp[self.n1:])
+            #print(temp.shape)
+            temp[:self.n1] = np.apply_along_axis(np.logaddexp, 0, term2_pop1, temp[:self.n1])
+            temp[self.n1:] = np.apply_along_axis(np.logaddexp, 0, term2_pop2, temp[self.n1:])
 
             # using axis=0, logsumexp sum over each column of the transition matrix
             f[:, j] = emis[j] + temp
         return f
 
 
-    @jit
+    #@jit
     def backward(self, emis, nrow, ncol):
         # Given the observed haplotype, compute its backward matrix
         b = np.zeros((nrow, ncol))
@@ -84,7 +85,7 @@ class HMM(object):
             b[:,j] = logsumexp(T + emis[j+1] + b[:,j+1], axis=1)
         return b
     
-    @jit
+    #@jit
     def posterior(self, f, b, n1, n2, ncol):
         # posterior decoding
         post = np.zeros((n1+n2, ncol))
@@ -107,14 +108,14 @@ class HMM(object):
         n1, n2 = self.n1, self.n2
         ncol = self.numSNP
         f = self.forward(emis, n1+n2, ncol)
-        b = self.backward(emis, n1+n2, ncol)
+        #b = self.backward(emis, n1+n2, ncol)
         end = time.time()
         print(f'uncached version takes time {end-start}')
         print(f'forward probability:{logsumexp(f[:,-1])}')
-        print(f'backward probability:{logsumexp(self.initial + emis[0] + b[:,0])}')
+        #print(f'backward probability:{logsumexp(self.initial + emis[0] + b[:,0])}')
 
-        post_pop1, post_pop2 = self.posterior(f,b, n1, n2, ncol)
-        return [0 if prob1 > prob2 else 1 for prob1, prob2 in zip(post_pop1, post_pop2)]
+        #post_pop1, post_pop2 = self.posterior(f,b, n1, n2, ncol)
+        #return [0 if prob1 > prob2 else 1 for prob1, prob2 in zip(post_pop1, post_pop2)]
 
 
 
