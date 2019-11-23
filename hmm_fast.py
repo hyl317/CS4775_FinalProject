@@ -73,7 +73,7 @@ class HMM(object):
         return f
 
 
-    #@jit
+    @jit
     def backward(self, emis, nrow, ncol):
         # Given the observed haplotype, compute its backward matrix
         b = np.zeros((nrow, ncol))
@@ -107,7 +107,7 @@ class HMM(object):
 
         return b
     
-    #@jit
+    @jit
     def posterior(self, f, b, n1, n2, ncol):
         # posterior decoding
         post = np.zeros((n1+n2, ncol))

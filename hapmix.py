@@ -77,7 +77,7 @@ def main():
 
     hmmModel = hmm_fast.HMM(pop1_snp, pop2_snp, args.mu, args.t, numSNP, n1, n2, rho1, rho2, theta1, theta2, D)
 
-    with open('decode.numba.txt','w') as output:
+    with open('decode.numba.fast.txt','w') as output:
         for i in range(a_snp.shape[1]):
             states = hmmModel.decode(a_snp[:, i])
             # find ancestry switching point
