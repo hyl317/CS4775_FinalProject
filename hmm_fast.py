@@ -102,9 +102,6 @@ class HMM(object):
 
             b[:,j] = temp
 
-
-
-
         return b
     
     @jit
@@ -137,5 +134,6 @@ class HMM(object):
         print(f'backward probability:{logsumexp(self.initial + emis[0] + b[:,0])}')
 
         post_pop1, post_pop2 = self.posterior(f,b, n1, n2, ncol)
-        return [0 if prob1 > prob2 else 1 for prob1, prob2 in zip(post_pop1, post_pop2)]
+        return post_pop1, post_pop2
+        #return [0 if prob1 > prob2 else 1 for prob1, prob2 in zip(post_pop1, post_pop2)]
 

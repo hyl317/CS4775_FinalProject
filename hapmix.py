@@ -76,10 +76,14 @@ def main():
     print(f'theta1={theta1},theta2={theta2}')
 
     hmmModel = hmm_fast.HMM(pop1_snp, pop2_snp, args.mu, args.t, numSNP, n1, n2, rho1, rho2, theta1, theta2, D)
-
+    posterior = np.zeros((n1+n2, numSNP))
     with open('decode.numba.fast.txt','w') as output:
+        # the raw file prints posterior probability for each snp site to be in population1
+        # one haplotype for line, one column per SNP site
         for i in range(a_snp.shape[1]):
-            states = hmmModel.decode(a_snp[:, i])
+            post1, post2 = hmmModel.decode(a_snp[:, i])
+            posterior[i] = post1
+            states = [0 if prob1 > prob2 else 1 for prob1, prob2 in zip(post_pop1, post_pop2)]
             # find ancestry switching point
             prev  = [states[0]] + states[:numSNP-1]
             diff = np.array(states) - np.array(prev)
@@ -93,5 +97,6 @@ def main():
                 report += f'{states[-1]}:{numSNP-1}'
             output.write(f'{report}\n')
 
+    np.savetxt('raw.posterior.gz', posterior, delimiter='\t')
 if __name__ == '__main__':
     main()
