@@ -82,14 +82,14 @@ class HMM(object):
 
         for j in range(ncol-2, -1, -1):
             noAncestrySwitch, noRecomb1, noRecomb2 = self.transition(self.D[j+1])
-            common_pop1 = logsumexp(np.log(1-noAncestrySwitch) + np.log(self.mu) - np.log(self.n1) + b[:,j+1])
-            common_pop2 = logsumexp(np.log(1-noAncestrySwitch) + np.log(1-self.mu) - np.log(self.n2) + b[:,j+1])
+            common_pop1 = logsumexp(np.log(1-noAncestrySwitch) + np.log(self.mu) - np.log(self.n1) + emis[j+1] +b[:,j+1])
+            common_pop2 = logsumexp(np.log(1-noAncestrySwitch) + np.log(1-self.mu) - np.log(self.n2) + emis[j+1] + b[:,j+1])
             #next term is for cases where i=l
-            term1_pop1 = logsumexp(np.log(noAncestrySwitch) + np.log(1-noRecomb1) - np.log(self.n1) + b[:self.n1, j+1])
-            term1_pop2 = logsumexp(np.log(noAncestrySwitch) + np.log(1-noRecomb2) - np.log(self.n2) + b[self.n1:, j+1])
+            term1_pop1 = logsumexp(np.log(noAncestrySwitch) + np.log(1-noRecomb1) - np.log(self.n1) + emis[j+1,:self.n1] +b[:self.n1, j+1])
+            term1_pop2 = logsumexp(np.log(noAncestrySwitch) + np.log(1-noRecomb2) - np.log(self.n2) + emis[j+1,self.n1:] +b[self.n1:, j+1])
             #last term is only for i=l and n=k
-            term2_pop1 = np.log(noAncestrySwitch) + np.log(noRecomb1) + b[:self.n1, j+1]
-            term2_pop2 = np.log(noAncestrySwitch) + np.log(noRecomb2) + b[self.n1:, j+1]
+            term2_pop1 = np.log(noAncestrySwitch) + np.log(noRecomb1) + emis[j+1,:self.n1] + b[:self.n1, j+1]
+            term2_pop2 = np.log(noAncestrySwitch) + np.log(noRecomb2) + emis[j+1,self.n1:] + b[self.n1:, j+1]
 
             temp = np.concatenate((np.repeat(common_pop1, self.n1), np.repeat(common_pop2, self.n2)), axis=0)
             #print(temp.shape)
