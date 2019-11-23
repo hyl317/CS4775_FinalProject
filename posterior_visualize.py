@@ -18,7 +18,6 @@ def referenceprovided(decode, reference, dir):
                 post = post.strip().split('\t')
                 plot(post, pop1, count, dir, referenceAncestry)
                 count += 1
-                break
 
 
 def noReference(decode):
@@ -28,7 +27,8 @@ def noReference(decode):
 
 def plot(posterior, pop1, count, dir, true_Ancestry=None):
     posterior = list(map(float, posterior))
-    plt.plot(np.arange(len(posterior)), posterior, linewidth=3, color='black')
+    plt.figure()
+    plt.plot(np.arange(len(posterior)), posterior, linewidth=1, color='black')
     plt.xlabel('SNP site along the chromosome')
     plt.ylabel(f'Posterior Probability of Belonging to {pop1}')
     plt.ylim(0, 1.1)
@@ -45,7 +45,7 @@ def plot(posterior, pop1, count, dir, true_Ancestry=None):
                 temp = pop1_interval[-1]
                 pop1_interval[-1] = (temp[0], curr)
             else:
-                pop1_interval.append(prev+1, curr)
+                pop1_interval.append((prev_snp+1, curr))
         prev_pop, prev_snp = pop, curr
 
     ax = plt.gca()
