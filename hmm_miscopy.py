@@ -71,13 +71,13 @@ class HMM_mis(object):
             print(f"{term1_pop1}\n{term1_pop2}\n{term2_pop1}\n{term2_pop2}\n{term3_pop1}\n{term3_pop2}")
             # term1
             f[:self.n1, j] = np.repeat(term1_pop1, self.n1)
-            f[2*self.n1+self.n2:, j] = np.repeat(term2_pop2, self.n2)
+            f[2*self.n1+self.n2:, j] = np.repeat(term1_pop2, self.n2)
             # term2
             f[:self.n1, j] = np.apply_along_axis(np.logaddexp, 0, np.repeat(term2_pop1, self.n1), f[:self.n1, j])
             f[2*self.n1+self.n2:, j] = np.apply_along_axis(np.logaddexp, 0, np.repeat(term2_pop2, self.n2), f[2*self.n1+self.n2:, j])
             # term3
-            f[:self.n1, j] = np.apply_along_axis(np.logaddexp, 0, term3_pop1, f[:self.n1, j-1])
-            f[2*self.n1+self.n2:, j] = np.apply_along_axis(np.logaddexp, 0, term3_pop2, f[2*self.n1+self.n2:, j-1])
+            f[:self.n1, j] = np.apply_along_axis(np.logaddexp, 0, term3_pop1, f[:self.n1, j])
+            f[2*self.n1+self.n2:, j] = np.apply_along_axis(np.logaddexp, 0, term3_pop2, f[2*self.n1+self.n2:, j])
 
             # now let's deal with m != l case
             # here the pop1 and pop2 refers to the second entry in the triplet 
