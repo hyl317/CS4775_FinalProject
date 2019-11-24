@@ -27,7 +27,7 @@ class HMM_mis(object):
     def emission(self, obs_j, j):
         # return log probability of emission for site j
         # first let's compute emission for non-miscopy case (i=j in the triplet)
-        pop1SNP, pop2SNP = self.pop1matrix[j], self.pop2matrix[j]
+        pop1SNP, pop2SNP = self.pop1matrix[j][:,np.newaxis], self.pop2matrix[j][:,np.newaxis]
         indicator_pop1 = np.concatenate((obs_j == pop1SNP, obs_j != pop1SNP), axis=1)
         indicator_pop2 = np.concatenate((obs_j == pop2SNP, obs_j != pop2SNP), axis=1)
         theta1 = np.array([1-self.theta1, self.theta1])[:,np.newaxis]
@@ -43,11 +43,11 @@ class HMM_mis(object):
         # each SNP occupies a row, and each column correspond to a state
         emis = np.zeros((self.numSNP, 2*(self.n1+self.n2)))
         for j in range(self.numSNP):
-            emis[j] = emission(obs[j], j)
+            emis[j] = self.emission(obs[j], j).flatten()
         return emis
 
         
-    @jit(parallel=True)
+    #@jit(parallel=True)
     def forward(self, emis):
         f = np.zeros((2*(self.n1+self.n2), self.numSNP))
         # initialization
@@ -65,17 +65,17 @@ class HMM_mis(object):
             term2_pop2 = logsumexp(np.log(noAncestrySwitch) + np.log(1-noRecomb2) + logNoMiscopy - 
                                    np.log(self.n2) + f[self.n1+self.n2:,j-1])
             term3_pop1 = np.log(noAncestrySwitch) + np.log(noRecomb1) + f[:self.n1, j-1]
-            term3_pop2 = np.log(noAncestrySwitch) + np.log(noRecomb2) + f[2*self.n1+self.n2, j-1]
+            term3_pop2 = np.log(noAncestrySwitch) + np.log(noRecomb2) + f[2*self.n1+self.n2:, j-1]
 
             # term1
             f[:self.n1, j] = np.repeat(term1_pop1, self.n1)
             f[2*self.n1+self.n2:, j] = np.repeat(term2_pop2, self.n2)
             # term2
             f[:self.n1, j] = np.apply_along_axis(np.logaddexp, 0, np.repeat(term2_pop1, self.n1), f[:self.n1, j])
-            f[2*self.n1+self.n2, j] = np.apply_along_axis(np.logaddexp, 0, np.repeat(term2_pop2, self.n2), f[2*self.n1+self.n2:, j])
+            f[2*self.n1+self.n2:, j] = np.apply_along_axis(np.logaddexp, 0, np.repeat(term2_pop2, self.n2), f[2*self.n1+self.n2:, j])
             # term3
-            f[:self.n1, j] = np.apply_along_aixs(np.logaddexp, 0, term3_pop1, f[:self.n1, j-1])
-            f[2*self.n1+self.n2:, j] = np.apply_along_axis(np.logaddexp, 0, term3_pop2, f[2*self.n1+self.n2,j-1])
+            f[:self.n1, j] = np.apply_along_axis(np.logaddexp, 0, term3_pop1, f[:self.n1, j-1])
+            f[2*self.n1+self.n2:, j] = np.apply_along_axis(np.logaddexp, 0, term3_pop2, f[2*self.n1+self.n2:, j-1])
 
             # now let's deal with m != l case
             # here the pop1 and pop2 refers to the second entry in the triplet 
@@ -85,8 +85,8 @@ class HMM_mis(object):
                                    np.log(self.n1) + f[self.n1+self.n2:, j-1])
             term2_pop2 = logsumexp(np.log(noAncestrySwitch) + np.log(1-noRecomb1) + logMiscopy -
                                    np.log(self.n2) + f[:self.n1+self.n2, j-1])
-            term3_pop1 = np.log(noAncestrySwitch) + log(noRecomb2) + f[self.n1+self.n2:2*self.n1+self.n2, j-1]
-            term3_pop2 = np.log(noAncestrySwitch) + log(noRecomb1) + f[self.n1:self.n1+self.n2, j-1]
+            term3_pop1 = np.log(noAncestrySwitch) + np.log(noRecomb2) + f[self.n1+self.n2:2*self.n1+self.n2, j-1]
+            term3_pop2 = np.log(noAncestrySwitch) + np.log(noRecomb1) + f[self.n1:self.n1+self.n2, j-1]
 
             # term1
             f[self.n1:self.n1+self.n2, j] = np.repeat(term1_pop2, self.n2)
