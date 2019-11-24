@@ -5,8 +5,10 @@ import argparse
 import numpy as np
 import sys
 import matplotlib.pyplot as plt
+import scipy.stats
 import gzip
 import io
+from numba import jit
 
 def readDecodeFile(decodeFile):
     # return a numpy 2D array M such that
@@ -41,6 +43,17 @@ def readAncestryFile(refAncestryFile):
             line = f.readline()
     return np.array(ancestry)
 
+@jit
+def rsquared(posteriorMatrix, ancestryMatrix):
+    # for each sample, calculte the r^2 between its posterior probability and its true ancestry
+    numSample = posteriorMatrix.shape[0]
+    r2 = np.zeros(numSample)
+    for i in range(numSample):
+        slope, intercept, r_value, p_value, std_err = scipy.stats.linregress(posteriorMatrix[i], ancestryMatrix[i])
+        r2[i] = r_value
+    return r2
+
+
 def calibrate(decodeFile, refAncestryFile, bin=0.05):
     # return two vectors
     # the first vector is the posterior probability binned at bin (averaged over all posterior probability belonging in this bin)
@@ -57,12 +70,14 @@ def calibrate(decodeFile, refAncestryFile, bin=0.05):
     post = []
     empirical = []
     for i in range(numBins):
+        # calculate mean posterior probability and empirical frequency
         locs = np.where(np.logical_and(posteriorMatrix >= i*bin, posteriorMatrix < (i+1)*bin))
         meanPosterior = np.mean(posteriorMatrix[locs])
         empiricalFreq = np.sum(ancestryMatrix[locs] == 0)/len(locs[0])
         post.append(meanPosterior)
         empirical.append(empiricalFreq)
-    return post, empirical
+
+    return post, empirical, rsquared(posteriorMatrix, ancestryMatrix)
 
 
 
@@ -80,17 +95,31 @@ def main():
     binSize = 0.05
     color = ['r', 'm', 'g', 'b']
     labels = ['t=6', 't=20', 't=50', 't=100']
+    r2 = []
     plt.figure()
     plt.xlabel('Posterior probability of originating from CEU')
     plt.ylabel('Empirical probability of originating from CEU')
     plt.plot([0,1],[0,1], color='black',linewidth=2)
     for decodeFile, refAncestryFile, c, label in zip(decodeFileList, refAncestryFileList, color, labels):
-        averagePost, empiricalFreq = calibrate(decodeFile, refAncestryFile, bin=binSize)
+        averagePost, empiricalFreq, rsquared = calibrate(decodeFile, refAncestryFile, bin=binSize)
         plt.plot(averagePost, empiricalFreq, color=c, label=label)
+        r2.append(rsquared)
 
     plt.legend(loc='upper left', fontsize='large')
     plt.savefig('calibrate.png')
 
+
+    # plot histogram of rsquared
+    fig, ax = plt.subplots(2,2,figsize=(16,16))
+    # here rsquared is a vector of r^2 of samples in each value of t
+    for i, rsquared, label in enumerate(zip(r2, labels)):
+        row = math.floor(i/2)
+        col = i-row*2
+        ax[row, col].hist(rsquared)
+        ax[row, col].set_xlabel('Posterior Probability')
+        ax[row, col].set_title(f'r-squared distribution in 100 samples for {label}')
+
+    plt.savefig('r2hist.png')
 
 if __name__ == '__main__':
     main()
