@@ -81,8 +81,8 @@ class HMM_mis(object):
 
             # now let's deal with m != l case
             # here the pop1 and pop2 refers to the second entry in the triplet 
-            term1_pop1 = logsumexp(np.log(1-noAncestrySwitch) + logMiscopy + np.log(self.theta3) - np.log(self.n1) + f[:,j-1])
-            term1_pop2 = logsumexp(np.log(1-noAncestrySwitch) + logMiscopy + np.log(self.theta3) - np.log(self.n2) + f[:,j-1])
+            term1_pop1 = logsumexp(np.log(1-noAncestrySwitch) + logMiscopy + np.log(1-self.mu) - np.log(self.n1) + f[:,j-1])
+            term1_pop2 = logsumexp(np.log(1-noAncestrySwitch) + logMiscopy + np.log(self.mu) - np.log(self.n2) + f[:,j-1])
             term2_pop1 = logsumexp(np.log(noAncestrySwitch) + np.log(1-noRecomb2) + logMiscopy - 
                                    np.log(self.n1) + f[self.n1+self.n2:, j-1])
             term2_pop2 = logsumexp(np.log(noAncestrySwitch) + np.log(1-noRecomb1) + logMiscopy -
