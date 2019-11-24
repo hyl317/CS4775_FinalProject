@@ -49,6 +49,8 @@ def main():
     parser.add_argument('-m', action="store", dest='m', type=str, help='genetic map. i.e, the .snp file used in admixture simulation.')
     parser.add_argument('-mu', action="store", dest='mu', type=float, default=0.2, help='percentage of genetic composition of population 1 in the admixed population')
     parser.add_argument('-t', action="store", dest='t', type=int, default=6, help='Time (in numbers of generation) to the admixture event')
+    parser.add_argument('--miscopy', action="store", dest='miscopy', type=float, default=0.05, help="miscopying probability. Default is 0.05.")
+    parser.add_argument('--mis', action="store_true", dest='mis', help="If this flag is asserted, then miscopy will be allowed.")
     args = parser.parse_args()
 
     pop1_snp, pop2_snp, a_snp = readEigenstrat(args.p1), readEigenstrat(args.p2), readEigenstrat(args.a)
@@ -76,7 +78,10 @@ def main():
     print(f'theta1={theta1},theta2={theta2}')
 
     hmmModel = hmm_fast.HMM(pop1_snp, pop2_snp, args.mu, args.t, numSNP, n1, n2, rho1, rho2, theta1, theta2, D)
-    posterior = np.zeros((a_snp.shape[1], numSNP))
+    if args.mis:
+        hmmModel = hmm_miscopy.HMM_mis(pop1_snp, pop2_snp, args.mu, args.t, numSNP, n1, n2, rho1, rho2, theta1, theta2, D, args.miscopy)
+    
+    posterior = np.zeros((a_snp.shape[1], numSNP)) #row is for each haplotype, column is for each SNP site
     with open('decode.numba.fast.txt','w') as output:
         # the raw file prints posterior probability for each snp site to be in population1
         # one haplotype for line, one column per SNP site
