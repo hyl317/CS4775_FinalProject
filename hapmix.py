@@ -87,7 +87,7 @@ def main():
         # the raw file prints posterior probability for each snp site to be in population1
         # one haplotype for line, one column per SNP site
         for i in range(a_snp.shape[1]):
-            #post1, post2 = hmmModel.decode(a_snp[:, i])
+            post1, post2 = hmmModel.decode(a_snp[:, i])
             #posterior[i] = post1
             #states = [0 if prob1 > prob2 else 1 for prob1, prob2 in zip(post1, post2)]
             # find ancestry switching point
@@ -104,6 +104,7 @@ def main():
             #output.write(f'{report}\n')
 
     #np.savetxt('raw.posterior.gz', posterior, delimiter='\t')
+
 
 if __name__ == '__main__':
     main()

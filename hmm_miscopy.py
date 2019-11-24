@@ -129,7 +129,7 @@ class HMM_mis(object):
         print(f'uncached version takes time {end-start}')
         print(f'forward probability:{logsumexp(f[:,-1])}')
         #print(f'backward probability:{logsumexp(self.initial + emis[0] + b[:,0])}')
-
+        return 1,2
         #post_pop1, post_pop2 = self.posterior(f,b)
         #return post_pop1, post_pop2
 
