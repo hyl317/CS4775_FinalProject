@@ -136,13 +136,13 @@ class HMM_mis(object):
                                           np.log(1-noAncestrySwitch) + np.log(self.mu) + logNoMiscopy - np.log(self.n1))
            term_pop1 = logsumexp(transition_pop1 + emis[j+1, :self.n1] + b[:self.n1, j+1])
            b[:self.n1+self.n2, j] = np.apply_along_axis(np.logaddexp, 0,
-                                                        np.repeat(term_pop1, self.n1), b[:self.n1+self.n2, j])
+                                                        np.repeat(term_pop1, self.n1+self.n2), b[:self.n1+self.n2, j])
 
            transition_pop2 = np.logaddexp(np.log(noAncestrySwitch) + np.log(1-noRecomb2) + logNoMiscopy - np.log(self.n2),
                                           np.log(1-noAncestrySwitch) + np.log(1-self.mu) + logNoMiscopy - np.log(self.n2))
            term_pop2 = logsumexp(transition_pop2 + emis[j+1, 2*self.n1+self.n2:] + b[2*self.n1+self.n2:, j+1])
            b[self.n1+self.n2:, j] = np.apply_along_axis(np.logaddexp, 0,
-                                                        np.repeat(term_pop2, self.n2), b[self.n1+self.n2:, j])
+                                                        np.repeat(term_pop2, self.n1+self.n2), b[self.n1+self.n2:, j])
 
            # the next term is exclusively for i=j
            noEventTransition_pop1 = np.log(noAncestrySwitch) + np.log(noRecomb1)
