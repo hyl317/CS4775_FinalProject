@@ -5,6 +5,8 @@ import argparse
 import numpy as np
 import sys
 import matplotlib.pyplot as plt
+import gzip
+import io
 
 def readDecodeFile(decodeFile):
     # return a numpy 2D array M such that
@@ -13,19 +15,19 @@ def readDecodeFile(decodeFile):
     with gzip.open(decodeFile) as file:
         with io.BufferedReader(file) as f:
             for line in f:
-                probs = list(map(float, line.strip().split('\t')))
+                probs = list(map(float, line.decode('latin1').strip().split('\t')))
                 posterior.append(probs)
     return np.array(posterior)
 
-def constructAncestry(ancestrywitches):
-    ancestry = []
+def constructAncestry(ancestrySwitches):
+    ancestryList = []
     prev = -1
     for switch in ancestrySwitches:
-        ancestry, end = ancestrySwitch.split(':')
+        ancestry, end = switch.split(':')
         ancestry, end = int(ancestry), int(end)
-        ancestry.extend([ancestry]*(end-prev))
+        ancestryList.extend([ancestry]*(end-prev))
         prev = end
-    return ancestry
+    return ancestryList
 
 
 def readAncestryFile(refAncestryFile):
@@ -36,6 +38,7 @@ def readAncestryFile(refAncestryFile):
         while line:
             switch = line.strip().split(' ')
             ancestry.append(constructAncestry(switch))
+            line = f.readline()
     return np.array(ancestry)
 
 def calibrate(decodeFile, refAncestryFile, bin=0.05):
