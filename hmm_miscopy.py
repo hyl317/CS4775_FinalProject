@@ -47,7 +47,7 @@ class HMM_mis(object):
         return emis
 
         
-    #@jit(parallel=True)
+    @jit(parallel=True)
     def forward(self, emis):
         logMiscopy, logNoMiscopy = np.log(self.theta3), np.log(1-self.theta3)
         f = np.zeros((2*(self.n1+self.n2), self.numSNP))
@@ -107,7 +107,7 @@ class HMM_mis(object):
             f[:, j] = emis[j] + f[:, j]
         return f
 
-    #@jit(parallel=True)
+    @jit(parallel=True)
     def backward(self, emis):
        logMiscopy, logNoMiscopy = np.log(self.theta3), np.log(1-self.theta3)
        b = np.zeros((2*(self.n1+self.n2), self.numSNP))
@@ -150,7 +150,7 @@ class HMM_mis(object):
            term_pop1 = noEventTransition_pop1 + emis[j+1, :self.n1] + b[:self.n1, j+1]
            term_pop2 = noEventTransition_pop2 + emis[j+1, 2*self.n1+self.n2:] + b[2*self.n1+self.n2:, j+1]
            b[:self.n1, j] = np.apply_along_axis(np.logaddexp, 0, term_pop1, b[:self.n1, j])
-           b[2*self.n1+self.n2, j] = np.apply_along_axis(np.logaddexp, 0, term_pop2, b[2*self.n1+self.n2:, j])
+           b[2*self.n1+self.n2:, j] = np.apply_along_axis(np.logaddexp, 0, term_pop2, b[2*self.n1+self.n2:, j])
 
            # we add terms for l=i and m != l
            transition_pop1 = np.logaddexp(np.log(noAncestrySwitch) + np.log(1-noRecomb1) + logMiscopy - np.log(self.n2),
