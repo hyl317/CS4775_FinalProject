@@ -49,6 +49,7 @@ class HMM_mis(object):
         
     #@jit(parallel=True)
     def forward(self, emis):
+        logMiscopy, logNoMiscopy = np.log(self.theta3), np.log(1-self.theta3)
         f = np.zeros((2*(self.n1+self.n2), self.numSNP))
         # initialization
         f[:,0] = self.initial + emis[0]
@@ -56,7 +57,7 @@ class HMM_mis(object):
         #print(f"f[:,0]:{f[:,0]}")
         for j in range(1, self.numSNP):
             noAncestrySwitch, noRecomb1, noRecomb2 = self.transition(self.D[j])
-            logMiscopy, logNoMiscopy = np.log(self.theta3), np.log(1-self.theta3)
+            
             # first let's deal with m=l case
             term1_pop1 = logsumexp(np.log(1-noAncestrySwitch) + np.log(self.mu) + logNoMiscopy - 
                                    np.log(self.n1) + f[:,j-1])
@@ -106,9 +107,75 @@ class HMM_mis(object):
             f[:, j] = emis[j] + f[:, j]
         return f
 
-    @jit(parallel=True)
+    #@jit(parallel=True)
     def backward(self, emis):
-       pass
+       logMiscopy, logNoMiscopy = np.log(self.theta3), np.log(1-self.theta3)
+       b = np.zeros((2*(self.n1+self.n2), self.numSNP))
+       for j in range(self.numSNP-2, -1, -1):
+           noAncestrySwitch, noRecomb1, noRecomb2 = self.transition(self.D[j+1])
+           # here we pivot on the first entry in the triplet (in forward matrix calculation, I pivoted on the second entry)
+
+           # first compute terms for i != l
+           term_noMiscopy_pop1 = logsumexp(np.log(1-noAncestrySwitch) + np.log(1-self.mu) + logNoMiscopy - 
+                                           np.log(self.n2) + emis[j+1, 2*self.n1+self.n2:2*(self.n1+self.n2)] + 
+                                           b[2*self.n1+self.n2:2*(self.n1+self.n2), j+1])
+           term_Miscopy_pop1 = logsumexp(np.log(1-noAncestrySwitch) + np.log(1-self.mu) + logMiscopy -
+                                         np.log(self.n1) + emis[j+1, self.n1+self.n2:2*self.n1+self.n2] +
+                                         b[self.n1+self.n2:2*self.n1+self.n2, j+1])
+           term_noMiscopy_pop2 = logsumexp(np.log(1-noAncestrySwitch) + np.log(self.mu) + logNoMiscopy - 
+                                           np.log(self.n1) + emis[j+1, :self.n1] + b[:self.n1, j+1])
+           term_Miscopy_pop2 = logsumexp(np.log(1-noAncestrySwitch) + np.log(self.mu) + logMiscopy -
+                                         np.log(self.n2) + emis[j+1, self.n1:self.n1+self.n2] +
+                                         b[self.n1:self.n1+self.n2, j+1])
+           b[:self.n1+self.n2, j] = np.repeat(np.logaddexp(term_noMiscopy_pop1, term_Miscopy_pop1), self.n1+self.n2)
+           b[self.n1+self.n2:, j] = np.repeat(np.logaddexp(term_noMiscopy_pop2, term_Miscopy_pop2), self.n1+self.n2)
+
+           # add terms for i=l and l=m
+           # the first term is shared by both i=j and i != j
+           transition_pop1 = np.logaddexp(np.log(noAncestrySwitch) + np.log(1-noRecomb1) + logNoMiscopy - np.log(self.n1),
+                                          np.log(1-noAncestrySwitch) + np.log(self.mu) + logNoMiscopy - np.log(self.n1))
+           term_pop1 = logsumexp(transition_pop1 + emis[j+1, :self.n1] + b[:self.n1, j+1])
+           b[:self.n1+self.n2, j] = np.apply_along_axis(np.logaddexp, 0,
+                                                        np.repeat(term_pop1, self.n1), b[:self.n1+self.n2, j])
+
+           transition_pop2 = np.logaddexp(np.log(noAncestrySwitch) + np.log(1-noRecomb2) + logNoMiscopy - np.log(self.n2),
+                                          np.log(1-noAncestrySwitch) + np.log(1-self.mu) + logNoMiscopy - np.log(self.n2))
+           term_pop2 = logsumexp(transition_pop2 + emis[j+1, 2*self.n1+self.n2:] + b[2*self.n1+self.n2:, j+1])
+           b[self.n1+self.n2:, j] = np.apply_along_axis(np.logaddexp, 0,
+                                                        np.repeat(term_pop2, self.n2), b[self.n1+self.n2:, j])
+
+           # the next term is exclusively for i=j
+           noEventTransition_pop1 = np.log(noAncestrySwitch) + np.log(noRecomb1)
+           noEventTransition_pop2 = np.log(noAncestrySwitch) + np.log(noRecomb2)
+           term_pop1 = noEventTransition_pop1 + emis[j+1, :self.n1] + b[:self.n1, j+1]
+           term_pop2 = noEventTransition_pop2 + emis[j+1, 2*self.n1+self.n2:] + b[2*self.n1+self.n2:, j+1]
+           b[:self.n1, j] = np.apply_along_axis(np.logaddexp, 0, term_pop1, b[:self.n1, j])
+           b[2*self.n1+self.n2, j] = np.apply_along_axis(np.logaddexp, 0, term_pop2, b[2*self.n1+self.n2:, j])
+
+           # we add terms for l=i and m != l
+           transition_pop1 = np.logaddexp(np.log(noAncestrySwitch) + np.log(1-noRecomb1) + logMiscopy - np.log(self.n2),
+                                          np.log(1-noAncestrySwitch) + np.log(self.mu) + logMiscopy - np.log(self.n2))
+           term_pop1 = logsumexp(transition_pop1 + emis[j+1, self.n1:self.n1+self.n2] + b[self.n1:self.n1+self.n2, j+1])
+           b[:self.n1+self.n2, j] = np.apply_along_axis(np.logaddexp, 0, 
+                                                        np.repeat(term_pop1, self.n1+self.n2), b[:self.n1+self.n2, j])
+
+           transition_pop2 = np.logaddexp(np.log(noAncestrySwitch) + np.log(1-noRecomb2) + logMiscopy - np.log(self.n1),
+                                          np.log(1-noAncestrySwitch) + np.log(1-self.mu) + logMiscopy - np.log(self.n1))
+           term_pop2 = logsumexp(transition_pop2 + emis[j+1, self.n1+self.n2:2*self.n1+self.n2] + b[self.n1+self.n2:2*self.n1+self.n2, j+1])
+           b[self.n1+self.n2:, j] = np.apply_along_axis(np.logaddexp, 0, 
+                                                        np.repeat(term_pop2, self.n1+self.n2), b[self.n1+self.n2:, j])
+
+           # the final term is for l=i, j != i and l != m
+           term_pop1 = noEventTransition_pop1 + emis[j+1, self.n1:self.n1+self.n2] + b[self.n1:self.n1+self.n2, j+1]
+           b[self.n1:self.n1+self.n2, j] = np.apply_along_axis(np.logaddexp, 0, 
+                                                               term_pop1, b[self.n1:self.n1+self.n2, j])
+           term_pop2 = noEventTransition_pop2 + emis[j+1, self.n1+self.n2:2*self.n1+self.n2] + b[self.n1+self.n2:2*self.n1+self.n2, j+1]
+           b[self.n1+self.n2:2*self.n1+self.n2] = np.apply_along_axis(np.logaddexp, 0,
+                                                                      term_pop2, b[self.n1+self.n2:2*self.n1+self.n2, j])
+       return b
+
+
+
     
     @jit(parallel=True)
     def posterior(self, f, b):
@@ -126,11 +193,11 @@ class HMM_mis(object):
         n1, n2 = self.n1, self.n2
         ncol = self.numSNP
         f = self.forward(emis)
-        #b = self.backward(emis)
+        b = self.backward(emis)
         end = time.time()
         print(f'uncached version takes time {end-start}')
         print(f'forward probability:{logsumexp(f[:,-1])}')
-        #print(f'backward probability:{logsumexp(self.initial + emis[0] + b[:,0])}')
+        print(f'backward probability:{logsumexp(self.initial + emis[0] + b[:,0])}')
         return 1,2
         #post_pop1, post_pop2 = self.posterior(f,b)
         #return post_pop1, post_pop2
