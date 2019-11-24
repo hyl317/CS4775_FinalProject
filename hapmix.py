@@ -88,6 +88,7 @@ def main():
         # one haplotype for line, one column per SNP site
         for i in range(a_snp.shape[1]):
             post1, post2 = hmmModel.decode(a_snp[:, i])
+            break
             #posterior[i] = post1
             #states = [0 if prob1 > prob2 else 1 for prob1, prob2 in zip(post1, post2)]
             # find ancestry switching point

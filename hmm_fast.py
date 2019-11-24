@@ -47,7 +47,8 @@ class HMM(object):
         f = np.zeros((nrow, ncol))
         # initialization
         f[:,0] = (self.initial + emis[0]).flatten()
-        
+        #print(f"initial:{self.initial}")
+        #print(f"f[0]:{f[:,0]}")
          # fill in forward matrix
         for j in range(1, ncol):
             noAncestrySwitch, noRecomb1, noRecomb2 = self.transition(self.D[j])

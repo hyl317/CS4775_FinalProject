@@ -52,6 +52,8 @@ class HMM_mis(object):
         f = np.zeros((2*(self.n1+self.n2), self.numSNP))
         # initialization
         f[:,0] = self.initial + emis[0]
+        print(f"initial:{self.initial}")
+        print(f"f[:,0]:{f[:,0]}")
         for j in range(1, self.numSNP):
             noAncestrySwitch, noRecomb1, noRecomb2 = self.transition(self.D[j])
             logMiscopy, logNoMiscopy = np.log(self.theta3), np.log(1-self.theta3)
@@ -66,7 +68,7 @@ class HMM_mis(object):
                                    np.log(self.n2) + f[self.n1+self.n2:,j-1])
             term3_pop1 = np.log(noAncestrySwitch) + np.log(noRecomb1) + f[:self.n1, j-1]
             term3_pop2 = np.log(noAncestrySwitch) + np.log(noRecomb2) + f[2*self.n1+self.n2:, j-1]
-
+            print(f"{term1_pop1}\n{term1_pop2}\n{term2_pop1}\n{term2_pop2}\n{term3_pop1}\n{term3_pop2}")
             # term1
             f[:self.n1, j] = np.repeat(term1_pop1, self.n1)
             f[2*self.n1+self.n2:, j] = np.repeat(term2_pop2, self.n2)
