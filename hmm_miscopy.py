@@ -117,8 +117,8 @@ class HMM_mis(object):
 
            # first compute terms for i != l
            term_noMiscopy_pop1 = logsumexp(np.log(1-noAncestrySwitch) + np.log(1-self.mu) + logNoMiscopy - 
-                                           np.log(self.n2) + emis[j+1, 2*self.n1+self.n2:2*(self.n1+self.n2)] + 
-                                           b[2*self.n1+self.n2:2*(self.n1+self.n2), j+1])
+                                           np.log(self.n2) + emis[j+1, 2*self.n1+self.n2:] + 
+                                           b[2*self.n1+self.n2:, j+1])
            term_Miscopy_pop1 = logsumexp(np.log(1-noAncestrySwitch) + np.log(1-self.mu) + logMiscopy -
                                          np.log(self.n1) + emis[j+1, self.n1+self.n2:2*self.n1+self.n2] +
                                          b[self.n1+self.n2:2*self.n1+self.n2, j+1])
