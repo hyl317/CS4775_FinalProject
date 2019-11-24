@@ -57,9 +57,9 @@ def calibrate(decodeFile, refAncestryFile, bin=0.05):
     post = []
     empirical = []
     for i in range(numBins):
-        locs = np.where(np.logical_and(posteriorMatrix >= i*bin, posterior < (i+1)*bin))
+        locs = np.where(np.logical_and(posteriorMatrix >= i*bin, posteriorMatrix < (i+1)*bin))
         meanPosterior = np.mean(posteriorMatrix[locs])
-        empiricalFreq = np.sum(ancestryMatrix[locs] == 0)/len(locs)
+        empiricalFreq = np.sum(ancestryMatrix[locs] == 0)/len(locs[0])
         post.append(meanPosterior)
         empirical.append(empiricalFreq)
     return post, empirical
@@ -83,6 +83,7 @@ def main():
     plt.figure()
     plt.xlabel('Posterior probability of originating from CEU')
     plt.ylabel('Empirical probability of originating from CEU')
+    plt.plot([0,1],[0,1], color='black',linewidth=2)
     for decodeFile, refAncestryFile, c, label in zip(decodeFileList, refAncestryFileList, color, labels):
         averagePost, empiricalFreq = calibrate(decodeFile, refAncestryFile, bin=binSize)
         plt.plot(averagePost, empiricalFreq, color=c, label=label)
