@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import scipy.stats
 import gzip
 import io
+import math
 from numba import jit
 
 def readDecodeFile(decodeFile):
@@ -49,8 +50,12 @@ def rsquared(posteriorMatrix, ancestryMatrix):
     numSample = posteriorMatrix.shape[0]
     r2 = np.zeros(numSample)
     for i in range(numSample):
-        slope, intercept, r_value, p_value, std_err = scipy.stats.linregress(posteriorMatrix[i], ancestryMatrix[i])
-        r2[i] = r_value
+        slope, intercept, r_value, p_value, std_err = scipy.stats.linregress(posteriorMatrix[i], 1-ancestryMatrix[i])
+        r2[i] = r_value if not np.all(ancestryMatrix[i] == np.mean(ancestryMatrix[i])) else 1
+        if r_value < 0.1:
+            print('suspiciously low correlation coefficient. Might be caused by all y values being the same. Please check further!')
+            print(1-ancestryMatrix[i])
+            print(posteriorMatrix[i])
     return r2
 
 
@@ -108,15 +113,15 @@ def main():
     plt.legend(loc='upper left', fontsize='large')
     plt.savefig('calibrate.png')
 
-
     # plot histogram of rsquared
     fig, ax = plt.subplots(2,2,figsize=(16,16))
     # here rsquared is a vector of r^2 of samples in each value of t
-    for i, rsquared, label in enumerate(zip(r2, labels)):
+    for i, (rsquared, label) in enumerate(zip(r2, labels)):
         row = math.floor(i/2)
         col = i-row*2
         ax[row, col].hist(rsquared)
-        ax[row, col].set_xlabel('Posterior Probability')
+        ax[row, col].set_xlabel('r-squared')
+        ax[row, col].set_ylabel('count')
         ax[row, col].set_title(f'r-squared distribution in 100 samples for {label}')
 
     plt.savefig('r2hist.png')
