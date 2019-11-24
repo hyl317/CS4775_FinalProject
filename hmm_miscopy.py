@@ -49,7 +49,7 @@ class HMM_mis(object):
         
     @jit(parallel=True)
     def forward(self, emis):
-        logMiscopy, logNoMiscopy = np.log(self.theta3), np.log(1-self.theta3)
+        logMiscopy, logNoMiscopy = np.log(self.miscopy), np.log(1-self.miscopy)
         f = np.zeros((2*(self.n1+self.n2), self.numSNP))
         # initialization
         f[:,0] = self.initial + emis[0]
@@ -109,7 +109,7 @@ class HMM_mis(object):
 
     @jit(parallel=True)
     def backward(self, emis):
-       logMiscopy, logNoMiscopy = np.log(self.theta3), np.log(1-self.theta3)
+       logMiscopy, logNoMiscopy = np.log(self.miscopy), np.log(1-self.miscopy)
        b = np.zeros((2*(self.n1+self.n2), self.numSNP))
        for j in range(self.numSNP-2, -1, -1):
            noAncestrySwitch, noRecomb1, noRecomb2 = self.transition(self.D[j+1])
