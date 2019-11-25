@@ -88,22 +88,22 @@ def main():
         # one haplotype for line, one column per SNP site
         for i in range(a_snp.shape[1]):
             post1, post2 = hmmModel.decode(a_snp[:, i])
-            #posterior[i] = post1
-            #states = [0 if prob1 > prob2 else 1 for prob1, prob2 in zip(post1, post2)]
+            posterior[i] = post1
+            states = [0 if prob1 > prob2 else 1 for prob1, prob2 in zip(post1, post2)]
             # find ancestry switching point
-            #prev  = [states[0]] + states[:numSNP-1]
-            #diff = np.array(states) - np.array(prev)
-            #switch_points = np.where(diff != 0)[0]
-            #print(switch_points)
-            #report = ''
-            #for point in switch_points:
-            #    report += f'{prev[point]}:{point-1} '
+            prev  = [states[0]] + states[:numSNP-1]
+            diff = np.array(states) - np.array(prev)
+            switch_points = np.where(diff != 0)[0]
+            print(switch_points)
+            report = ''
+            for point in switch_points:
+                report += f'{prev[point]}:{point-1} '
         
-            #if np.all(diff == 0) or switch_points[-1] != numSNP-1:
-            #    report += f'{states[-1]}:{numSNP-1}'
-            #output.write(f'{report}\n')
+            if np.all(diff == 0) or switch_points[-1] != numSNP-1:
+                report += f'{states[-1]}:{numSNP-1}'
+            output.write(f'{report}\n')
 
-    #np.savetxt('raw.posterior.gz', posterior, delimiter='\t')
+    np.savetxt('raw.posterior.gz', posterior, delimiter='\t')
 
 
 if __name__ == '__main__':
