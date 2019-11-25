@@ -47,7 +47,7 @@ class HMM_mis(object):
         return emis
 
         
-    #@jit(parallel=True)
+    @jit(parallel=True)
     def forward(self, emis):
         logMiscopy, logNoMiscopy = np.log(self.miscopy), np.log(1-self.miscopy)
         f = np.zeros((2*(self.n1+self.n2), self.numSNP))
@@ -107,7 +107,7 @@ class HMM_mis(object):
             f[:, j] = emis[j] + f[:, j]
         return f
 
-    #@jit(parallel=True)
+    @jit(parallel=True)
     def backward(self, emis):
        logMiscopy, logNoMiscopy = np.log(self.miscopy), np.log(1-self.miscopy)
        b = np.zeros((2*(self.n1+self.n2), self.numSNP))
@@ -182,7 +182,7 @@ class HMM_mis(object):
             log_px = logsumexp(f[:,j] + b[:,j])
             post[:,j] = np.exp(f[:,j] + b[:,j] - log_px) 
 
-        post_pop1, post_pop2 = post[:self.n1+self.n2], post[self.n1:self.n2:]
+        post_pop1, post_pop2 = post[:self.n1+self.n2], post[self.n1+self.n2:]
         post_pop1, post_pop2 = np.sum(post_pop1, axis=0), np.sum(post_pop2, axis=0)
         return post_pop1, post_pop2
     
