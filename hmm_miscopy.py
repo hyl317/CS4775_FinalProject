@@ -174,13 +174,17 @@ class HMM_mis(object):
                                                                       term_pop2, b[self.n1+self.n2:2*self.n1+self.n2, j])
        return b
 
-
-
-    
     @jit(parallel=True)
     def posterior(self, f, b):
         # posterior decoding
-        pass
+        post = np.zeros((2*(self.n1+self.n2), self.numSNP))
+        for j in range(self.numSNP):
+            log_px = logsumexp(f[:,j] + b[:,j])
+            post[:,j] = np.exp(f[:,j] + b[:,j] - log_px) 
+
+        post_pop1, post_pop2 = post[:self.n1+self.n2], post[self.n1:self.n2:]
+        post_pop1, post_pop2 = np.sum(post_pop1, axis=0), np.sum(post_pop2, axis=0)
+        return post_pop1, post_pop2
     
 
     def decode(self, obs):
@@ -198,7 +202,6 @@ class HMM_mis(object):
         print(f'uncached version takes time {end-start}')
         print(f'forward probability:{logsumexp(f[:,-1])}')
         print(f'backward probability:{logsumexp(self.initial + emis[0] + b[:,0])}')
-        return 1,2
-        #post_pop1, post_pop2 = self.posterior(f,b)
-        #return post_pop1, post_pop2
+        post_pop1, post_pop2 = self.posterior(f,b)
+        return post_pop1, post_pop2
 
