@@ -34,7 +34,7 @@ def main():
                         help='the number of haplotypes to use for simulating admixed individual')
     args = parser.parse_args()
 
-    snpmatrix = readEigenstrat(args.p)
+    snpmatrix = readEigenstrat(args.p).astype(np.int32)
     split(snpmatrix, args.n)
 
     
