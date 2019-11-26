@@ -23,8 +23,8 @@ def split(snpMatrix, numSimu):
     numSNP, numHap = snpMatrix.shape
     assert numSimu < numHap
     sel_col_simu = np.random.choice(numHap, numSimu, replace=False)
-    np.savetxt('simu.phgeno',snpMatrix[:,sel_col_simu], delimiter='')
-    np.savetxt('ref.phgeno', snpMatrix[:,np.setdiff1d(np.arange(numHap), sel_col_simu)], delimiter='')
+    np.savetxt('simu.phgeno',snpMatrix[:,sel_col_simu], delimiter='', fmt='%i')
+    np.savetxt('ref.phgeno', snpMatrix[:,np.setdiff1d(np.arange(numHap), sel_col_simu)], delimiter='', fmt='%i')
 
 def main():
     parser = argparse.ArgumentParser(description='split .phgeno file into one set for simulation (default 101 hyplotypes) and the rest for use as reference panel')
@@ -35,6 +35,7 @@ def main():
     args = parser.parse_args()
 
     snpmatrix = readEigenstrat(args.p).astype(np.int32)
+    print(snpmatrix)
     split(snpmatrix, args.n)
 
     
