@@ -104,8 +104,10 @@ def main():
     plt.figure()
     plt.xlabel('Posterior probability of originating from CEU')
     plt.ylabel('Empirical probability of originating from CEU')
+    plt.title('Posterior Probability Calibration for Hapmix without Miscopy')
     plt.plot([0,1],[0,1], color='black',linewidth=2)
     for decodeFile, refAncestryFile, c, label in zip(decodeFileList, refAncestryFileList, color, labels):
+        print(f'processing {refAncestryFile}')
         averagePost, empiricalFreq, rsquared = calibrate(decodeFile, refAncestryFile, bin=binSize)
         plt.plot(averagePost, empiricalFreq, color=c, label=label)
         r2.append(rsquared)
@@ -116,6 +118,7 @@ def main():
     # plot histogram of rsquared
     fig, ax = plt.subplots(2,2,figsize=(16,16))
     # here rsquared is a vector of r^2 of samples in each value of t
+    fig.suptitle(f'$r^2$ of Hapmix without Miscopy at Various $T$', y=0.95, fontsize=20, fontweight='bold')
     for i, (rsquared, label) in enumerate(zip(r2, labels)):
         row = math.floor(i/2)
         col = i-row*2
@@ -123,6 +126,8 @@ def main():
         ax[row, col].set_xlabel('r-squared')
         ax[row, col].set_ylabel('count')
         ax[row, col].set_title(f'r-squared distribution in 100 samples for {label}')
+        ax[row, col].text(0.2,0.8, f'$\mu=${np.mean(rsquared):.4f}', transform=ax[row, col].transAxes)
+        ax[row, col].text(0.2,0.75, f'$\sigma=${np.std(rsquared):.4f}', transform=ax[row, col].transAxes)
 
     plt.savefig('r2hist.png')
 
