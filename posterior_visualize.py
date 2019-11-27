@@ -28,7 +28,7 @@ def noReference(decode):
 def plot(posterior, pop1, count, dir, i,t, true_Ancestry=None):
     posterior = list(map(float, posterior))
     plt.figure()
-    plt.plot(np.arange(len(posterior)), posterior, linewidth=1, color='black')
+    plt.plot(np.arange(len(posterior)), posterior, linewidth=0.5, color='black')
     plt.xlabel('SNP site along the chromosome')
     plt.ylabel(f'Posterior Probability of Belonging to {pop1}')
     plt.title(f'Haplotype {i} simulated under $T=$ {t}')
