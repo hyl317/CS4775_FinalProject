@@ -95,6 +95,7 @@ def calibrate(decodeFile, refAncestryFile, bin=0.05):
         empiricalFreq = np.sum(ancestryMatrix[locs] == 0)/len(locs[0])
         post.append(meanPosterior)
         empirical.append(empiricalFreq)
+        print(f'number of sites in bin{i}: {len(locs[0])}')
 
     #return post, empirical, rsquared(posteriorMatrix, ancestryMatrix)
     return post, empirical, hammingDis(posteriorMatrix, ancestryMatrix)
