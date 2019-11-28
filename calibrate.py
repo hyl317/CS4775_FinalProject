@@ -10,6 +10,7 @@ import gzip
 import io
 import math
 from numba import jit
+import scipy.spatial
 
 def readDecodeFile(decodeFile):
     # return a numpy 2D array M such that
@@ -45,10 +46,10 @@ def readAncestryFile(refAncestryFile):
     return np.array(ancestry)
 
 def hammingDis(posteriorMatrix, ancestryMatrix):
-    numSample = posterior.Matrix.shape[0]
+    numSample = posteriorMatrix.shape[0]
     dist = np.zeros(numSample)
     for i in range(numSample):
-        decode = [0 if prob > 0.5 else 1 for prob in posteriorMatrix[i]]
+        decode = [0 if prob > 0.9 else 1 for prob in posteriorMatrix[i]]
         dist[i] = scipy.spatial.distance.hamming(decode, ancestryMatrix[i])
     return dist
 
@@ -131,18 +132,18 @@ def main():
     # plot histogram of rsquared
     fig, ax = plt.subplots(2,2,figsize=(16,16))
     # here rsquared is a vector of r^2 of samples in each value of t
-    fig.suptitle(f'$r^2$ of Hapmix with Miscopy=0.05 at Various $T$', y=0.95, fontsize=20, fontweight='bold')
+    fig.suptitle(f'Hamming Distance of Hapmix with Miscopy=0.05 at Various $T$', y=0.95, fontsize=24, fontweight='bold')
     for i, (rsquared, label) in enumerate(zip(r2, labels)):
         row = math.floor(i/2)
         col = i-row*2
         ax[row, col].hist(rsquared)
         ax[row, col].set_xlabel('r-squared')
         ax[row, col].set_ylabel('count')
-        ax[row, col].set_title(f'r-squared distribution in 100 samples for {label}')
-        ax[row, col].text(0.2,0.8, f'$\mu=${np.mean(rsquared):.4f}', transform=ax[row, col].transAxes)
-        ax[row, col].text(0.2,0.75, f'$\sigma=${np.std(rsquared):.4f}', transform=ax[row, col].transAxes)
+        ax[row, col].set_title(f'100 Samples, {label}', fontsize=20)
+        ax[row, col].text(0.6, 0.8, f'$\mu=${np.mean(rsquared):.4f}', transform=ax[row, col].transAxes, fontsize=16, fontweight='bold')
+        ax[row, col].text(0.6, 0.75, f'$\sigma=${np.std(rsquared):.4f}', transform=ax[row, col].transAxes, fontsize=16, fontweight='bold')
 
-    plt.savefig('r2hist.png')
+    plt.savefig('hamDist.png')
 
 if __name__ == '__main__':
     main()
