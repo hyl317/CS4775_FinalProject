@@ -89,7 +89,7 @@ def main():
         for i in range(a_snp.shape[1]):
             post1, post2 = hmmModel.decode(a_snp[:, i])
             posterior[i] = post1
-            states = [0 if prob1 > prob2 else 1 for prob1, prob2 in zip(post1, post2)]
+            states = [0 if prob1 > 0.9 else 1 for prob1, prob2 in zip(post1, post2)]
             # find ancestry switching point
             prev  = [states[0]] + states[:numSNP-1]
             diff = np.array(states) - np.array(prev)
