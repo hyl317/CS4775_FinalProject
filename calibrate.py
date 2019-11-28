@@ -114,7 +114,7 @@ def main():
     binSize = 0.05
     color = ['r', 'm', 'g', 'b']
     labels = ['t=6', 't=20', 't=50', 't=100']
-    r2 = []
+    ham = []
     plt.figure()
     plt.xlabel('Posterior probability of originating from CEU')
     plt.ylabel('Empirical probability of originating from CEU')
@@ -122,9 +122,9 @@ def main():
     plt.plot([0,1],[0,1], color='black',linewidth=2)
     for decodeFile, refAncestryFile, c, label in zip(decodeFileList, refAncestryFileList, color, labels):
         print(f'processing {refAncestryFile}')
-        averagePost, empiricalFreq, rsquared = calibrate(decodeFile, refAncestryFile, bin=binSize)
+        averagePost, empiricalFreq, hamDist = calibrate(decodeFile, refAncestryFile, bin=binSize)
         plt.plot(averagePost, empiricalFreq, color=c, label=label)
-        r2.append(rsquared)
+        ham.append(hamDist)
 
     plt.legend(loc='upper left', fontsize='large')
     plt.savefig('calibrate.png')
@@ -133,11 +133,11 @@ def main():
     fig, ax = plt.subplots(2,2,figsize=(16,16))
     # here rsquared is a vector of r^2 of samples in each value of t
     fig.suptitle(f'Hamming Distance of Hapmix with Miscopy=0.05 at Various $T$', y=0.95, fontsize=24, fontweight='bold')
-    for i, (rsquared, label) in enumerate(zip(r2, labels)):
+    for i, (hamDist, label) in enumerate(zip(ham, labels)):
         row = math.floor(i/2)
-        col = i-row*2
-        ax[row, col].hist(rsquared)
-        ax[row, col].set_xlabel('r-squared')
+        col = i - row*2
+        ax[row, col].hist(hamDist)
+        ax[row, col].set_xlabel('hamming distance')
         ax[row, col].set_ylabel('count')
         ax[row, col].set_title(f'100 Samples, {label}', fontsize=20)
         ax[row, col].text(0.6, 0.8, f'$\mu=${np.mean(rsquared):.4f}', transform=ax[row, col].transAxes, fontsize=16, fontweight='bold')
