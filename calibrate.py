@@ -132,7 +132,7 @@ def main():
     # plot histogram of rsquared
     fig, ax = plt.subplots(2,2,figsize=(16,16))
     # here rsquared is a vector of r^2 of samples in each value of t
-    fig.suptitle(f'Hamming Distance of Hapmix without Miscopy at Various $T$', y=0.95, fontsize=24, fontweight='bold')
+    fig.suptitle(f'Hamming Distance of Hapmix with Miscopy=0.05 at Various $T$', y=0.95, fontsize=24, fontweight='bold')
     for i, (hamDist, label) in enumerate(zip(ham, labels)):
         row = math.floor(i/2)
         col = i - row*2
