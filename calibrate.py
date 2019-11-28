@@ -44,6 +44,14 @@ def readAncestryFile(refAncestryFile):
             line = f.readline()
     return np.array(ancestry)
 
+def hammingDis(posteriorMatrix, ancestryMatrix):
+    numSample = posterior.Matrix.shape[0]
+    dist = np.zeros(numSample)
+    for i in range(numSample):
+        decode = [0 if prob > 0.5 else 1 for prob in posteriorMatrix[i]]
+        dist[i] = scipy.spatial.distance.hamming(decode, ancestryMatrix[i])
+    return dist
+
 @jit
 def rsquared(posteriorMatrix, ancestryMatrix):
     # for each sample, calculte the r^2 between its posterior probability and its true ancestry
@@ -56,11 +64,11 @@ def rsquared(posteriorMatrix, ancestryMatrix):
             print('suspiciously low correlation coefficient. Might be caused by all y values being the same. Please check further!')
             print(1-ancestryMatrix[i])
             print(posteriorMatrix[i])
-        if r2[i] < 0.7:
-            print('maybe sth is wrong')
-            print(i)
-            print(1-ancestryMatrix[i])
-            print(posteriorMatrix[i])
+        #if r2[i] < 0.7:
+        #    print('maybe sth is wrong')
+        #    print(i)
+        #    print(1-ancestryMatrix[i])
+        #    print(posteriorMatrix[i])
     return r2
 
 
@@ -87,8 +95,8 @@ def calibrate(decodeFile, refAncestryFile, bin=0.05):
         post.append(meanPosterior)
         empirical.append(empiricalFreq)
 
-    return post, empirical, rsquared(posteriorMatrix, ancestryMatrix)
-
+    #return post, empirical, rsquared(posteriorMatrix, ancestryMatrix)
+    return post, empirical, hammingDis(posteriorMatrix, ancestryMatrix)
 
 
 def main():
