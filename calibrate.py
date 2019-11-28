@@ -56,6 +56,11 @@ def rsquared(posteriorMatrix, ancestryMatrix):
             print('suspiciously low correlation coefficient. Might be caused by all y values being the same. Please check further!')
             print(1-ancestryMatrix[i])
             print(posteriorMatrix[i])
+        if r2[i] < 0.7:
+            print('maybe sth is wrong')
+            print(i)
+            print(1-ancestryMatrix[i])
+            print(posteriorMatrix[i])
     return r2
 
 
