@@ -64,7 +64,7 @@ def main():
     parser.add_argument('-p', action="store", dest="p", type=str, required=True, help='path to the zipped posterior decoding file')
     parser.add_argument('-r', action="store", dest="r", type=str, help='path to the true ancestry.[OPTIONAL]')
     parser.add_argument('-o', action="store", dest="o", type=str, required=True, help='path to output directory where images will saved')
-    parser.add_argument('-t', action="store", dest="t", type=int, help="time to the admixture event.")
+    parser.add_argument('-t', action="store", dest="t", type=int, required=True, help="time to the admixture event.")
     args = parser.parse_args()
 
     if args.r != None:
