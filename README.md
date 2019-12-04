@@ -30,9 +30,9 @@ The eigenstrat, .snp file format specification and examples can be found in [adm
 Upon completion, the hapmix.py will output two files, one called "decode.txt", and the other called "raw.posterior.gz"(it's by default zipped).
 
 The decode.txt file describes inferred ancestry switches. It contains one line per haplotype. Each line takes the format \[population index\]:\[marker index\]. Population index 0 corresponds to the ancestral population given via -p1 and index 1 corresponds to the ancestral population given via -p2. The marker is indexed from zero, inclusive. For example, 
-'''
+```
 1:66606 0:87954
-'''
+```
 The above line says that from markers from 0 up to and inclusing 66606 are inferred to have ancestry from -p2, and markers from 66607 up to and including 87954 are inferred to have ancestry from -p1.
 
 The raw.posterior.gz file contains posterior probability, one line per haplotype, one column for SNP site, of one SNP having ancestry from -p1.
