@@ -114,7 +114,7 @@ def main():
 
     binSize = 0.05
     color = ['r', 'm', 'g', 'b']
-    labels = ['t=6', 't=20', 't=50', 't=100']
+    labels = ['t=30', 't=50', 't=75', 't=100']
     ham = []
     plt.figure()
     plt.xlabel('Posterior probability of originating from CEU')
