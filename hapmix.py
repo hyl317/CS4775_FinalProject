@@ -83,7 +83,7 @@ def main():
         hmmModel = hmm_miscopy.HMM_mis(pop1_snp, pop2_snp, args.mu, args.t, numSNP, n1, n2, rho1, rho2, theta1, theta2, D, args.miscopy)
     
     posterior = np.zeros((a_snp.shape[1], numSNP)) #row is for each haplotype, column is for each SNP site
-    with open('decode.numba.fast.txt','w') as output:
+    with open('decode.txt','w') as output:
         # the raw file prints posterior probability for each snp site to be in population1
         # one haplotype for line, one column per SNP site
         for i in range(a_snp.shape[1]):
