@@ -1,8 +1,9 @@
 {
   "ExpandedNodes": [
     "",
-    "\\formatConversion"
+    "\\formatConversion",
+    "\\image-split"
   ],
-  "SelectedNode": "\\hmm_fast.py",
+  "SelectedNode": "\\formatConversion\\toSNPplus.py",
   "PreviewInSolutionExplorer": false
 }

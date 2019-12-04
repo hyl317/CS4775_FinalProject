@@ -17,9 +17,9 @@ import functools
 
 
 parser = argparse.ArgumentParser(description='prepare inputs to admi-simu program for two reference populations. All files starting with hapmap3 in the directory will be extracted.')
-parser.add_argument('-p1', action="store", dest="p1", type=str, help="path to the directory containing snp file for pop1")
-parser.add_argument('-p2', action="store", dest="p2", type=str, help="path to the directory containing snp file for pop2")
-parser.add_argument('-m', action="store", dest='m', type=str, help="path to .map file as produced by insert_map.pl")
+parser.add_argument('-p1', action="store", dest="p1", type=str, required=True, help="path to the directory containing snp file for pop1")
+parser.add_argument('-p2', action="store", dest="p2", type=str, required=True, help="path to the directory containing snp file for pop2")
+parser.add_argument('-m', action="store", dest='m', type=str, required=True, help="path to .map file as produced by insert_map.pl")
 args = parser.parse_args()
 
 # preprocess SNP files for population

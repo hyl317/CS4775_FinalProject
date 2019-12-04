@@ -44,12 +44,12 @@ def readGeneticMap(file):
 
 def main():
     parser = argparse.ArgumentParser(description='Local Ancestry Inference as implemented in Hapmix.')
-    parser.add_argument('-p1', action="store", dest="p1", type=str, help='eigenstrat SNP file for ancestral population 1 (eg. CEU)')
-    parser.add_argument('-p2', action="store", dest="p2", type=str, help='eigenstrat SNP file for ancestral population 2 (eg. YRI)')
-    parser.add_argument('-a', action="store", dest="a", type=str, help='eigenstrat SNP file for the admixed population.')
-    parser.add_argument('-m', action="store", dest='m', type=str, help='genetic map. i.e, the .snp file used in admixture simulation.')
-    parser.add_argument('-mu', action="store", dest='mu', type=float, default=0.2, help='percentage of genetic composition of population 1 in the admixed population')
-    parser.add_argument('-t', action="store", dest='t', type=int, default=6, help='Time (in numbers of generation) to the admixture event')
+    parser.add_argument('-p1', action="store", dest="p1", type=str, required=True, help='eigenstrat SNP file for ancestral population 1 (eg. CEU)')
+    parser.add_argument('-p2', action="store", dest="p2", type=str, required=True, help='eigenstrat SNP file for ancestral population 2 (eg. YRI)')
+    parser.add_argument('-a', action="store", dest="a", type=str, required=True, help='eigenstrat SNP file for the admixed population.')
+    parser.add_argument('-m', action="store", dest='m', type=str, required=True, help='genetic map. i.e, the .snp file used in admixture simulation.')
+    parser.add_argument('-mu', action="store", dest='mu', type=float, default=0.2, help='percentage of genetic composition of population 1 in the admixed population. Default=0.2')
+    parser.add_argument('-t', action="store", dest='t', type=int, default=5, help='Time (in numbers of generation) to the admixture event. Default=5')
     parser.add_argument('--miscopy', action="store", dest='miscopy', type=float, default=0.05, help="miscopying probability. Default is 0.05.")
     parser.add_argument('--mis', action="store_true", dest='mis', help="If this flag is asserted, then miscopy will be allowed.")
     args = parser.parse_args()
