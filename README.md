@@ -5,9 +5,9 @@ This is a implementation of the haploid version of [Hapmix](https://journals.plo
 ## Dependency
 The following python libraries are required. And make sure hapmix.py and hmm_fast.py are in the same directory.
 
-*numpy
-*scipy
-*numba
+- numpy
+- scipy
+- numba
 
 
 ## Usage
