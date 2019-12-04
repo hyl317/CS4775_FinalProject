@@ -67,7 +67,7 @@ with open(args.m) as map, open('ref1.phgeno','w') as ref1out, \
     open('admix1.phgeno','w') as admix1out, open('admix2.phgeno','w') as admix2out,\
     open('snp.txt','w') as snpout:
     
-    for i in range(snparray1.shape[0]):
+    for i in range(ref1.shape[0]):
         map_line = map.readline()
         if not map_line:
             print(f'genetic map information is lacking for snp {i+1}')
