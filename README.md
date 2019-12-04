@@ -1,14 +1,14 @@
-# CS4775_FinalProject
+# BTRY4840/CS4775 FinalProject
 
 This is a implementation of the haploid version of [Hapmix](https://journals.plos.org/plosgenetics/article?id=10.1371/journal.pgen.1000519). Hapmix is a HMM based local ancestry inference tool for two-way single admixture event.
 
 ## Dependency
 The following python libraries are required. And make sure hapmix.py and hmm_fast.py are in the same directory.
-'''
+```
 numpy
 scipy
 numba
-'''
+```
 
 ## Usage
 The main program is hapmix.py. Use `python hapmix.py -h`, you can view several necessary input files to run the program along with a short description.
