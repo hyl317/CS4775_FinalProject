@@ -124,7 +124,7 @@ def main():
     for decodeFile, refAncestryFile, c, label in zip(decodeFileList, refAncestryFileList, color, labels):
         print(f'processing {refAncestryFile}')
         averagePost, empiricalFreq, hamDist = calibrate(decodeFile, refAncestryFile, bin=binSize)
-        plt.plot(averagePost, empiricalFreq, color=c, label=label)
+        plt.plot(averagePost, empiricalFreq, color=c, label=label, marker='.')
         ham.append(hamDist)
 
     plt.legend(loc='upper left', fontsize='large')
