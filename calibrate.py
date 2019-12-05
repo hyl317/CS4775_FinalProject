@@ -114,12 +114,12 @@ def main():
 
     binSize = 0.05
     color = ['r', 'm', 'g', 'b']
-    labels = ['t=30', 't=50', 't=75', 't=100']
+    labels = ['t=6', 't=20', 't=50', 't=100']
     ham = []
     plt.figure()
     plt.xlabel('Posterior probability of originating from CEU')
     plt.ylabel('Empirical probability of originating from CEU')
-    plt.title('Posterior Probability Calibration for Hapmix Miscopy=0.05')
+    plt.title('Posterior Probability Calibration for Hapmix without Miscopy')
     plt.plot([0,1],[0,1], color='black',linewidth=2)
     for decodeFile, refAncestryFile, c, label in zip(decodeFileList, refAncestryFileList, color, labels):
         print(f'processing {refAncestryFile}')
@@ -133,7 +133,7 @@ def main():
     # plot histogram of rsquared
     fig, ax = plt.subplots(2,2,figsize=(16,16))
     # here rsquared is a vector of r^2 of samples in each value of t
-    fig.suptitle(f'Hamming Distance of Hapmix with Miscopy=0.05 at Various $T$', y=0.95, fontsize=24, fontweight='bold')
+    fig.suptitle(f'Hamming Distance of Hapmix with without Miscopy at Various $T$', y=0.95, fontsize=24, fontweight='bold')
     for i, (hamDist, label) in enumerate(zip(ham, labels)):
         row = math.floor(i/2)
         col = i - row*2
