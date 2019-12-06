@@ -2,8 +2,9 @@
   "ExpandedNodes": [
     "",
     "\\formatConversion",
-    "\\image-split"
+    "\\image-split",
+    "\\image-split\\T=6"
   ],
-  "SelectedNode": "\\hapmix.py",
+  "SelectedNode": "\\posterior_visualize.py",
   "PreviewInSolutionExplorer": false
 }

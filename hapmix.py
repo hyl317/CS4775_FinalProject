@@ -42,6 +42,27 @@ def readGeneticMap(file):
         p = list(map(int, p))
         return np.array(D), np.array(p)
 
+def bestMiscopyProb(pop1_snp, pop2_snp, mu, t, numSNP, n1, n2, rho1, rho2, theta1, theta2, D, haplotype):
+    # return the miscopying probability that maximizes the log probability of observing the given haplotype
+    # log probability will be computed by forward algorithm
+    # miscopying probability will be determined by granularity of 0.05 from range [0, 0.5]
+
+    probs = np.arange(0, 0.55, 0.05)
+    logprobs = np.zeros(len(probs))
+    for i, prob in enumerate(probs):
+        hmmModel = hmm_miscopy.HMM_mis(pop1_snp, pop2_snp, mu, t, numSNP, 
+                                       n1, n2, rho1, rho2, theta1, theta2, D, prob)
+        logprobs[i] = hmmModel.logProb(haplotype)
+
+    plt.figure()
+    plt.plot(probs, logprobs, linewidth=0.5, color='green', marker='.')
+    plt.xlabel('miscopying probability')
+    plt.ylabel(f'log likelihood')
+    plt.title(f'Log Likelihood as a Function of Miscopying Probability')
+    plt.savefig('logprob.png')
+    return probs[np.argmax(logprobs)]
+
+
 def main():
     parser = argparse.ArgumentParser(description='Local Ancestry Inference as implemented in Hapmix.')
     parser.add_argument('-p1', action="store", dest="p1", type=str, required=True, help='eigenstrat SNP file for ancestral population 1 (eg. CEU)')
@@ -52,6 +73,7 @@ def main():
     parser.add_argument('-t', action="store", dest='t', type=int, default=5, help='Time (in numbers of generation) to the admixture event. Default=5')
     parser.add_argument('--miscopy', action="store", dest='miscopy', type=float, default=0.05, help="miscopying probability. Default is 0.05.")
     parser.add_argument('--mis', action="store_true", dest='mis', help="If this flag is asserted, then miscopy will be allowed.")
+    parser.add_argument('--similar', action="store_true", dest='similar', help="If this flag is asserted, miscopying probability will be determined by log probability.")
     args = parser.parse_args()
 
     pop1_snp, pop2_snp, a_snp = readEigenstrat(args.p1), readEigenstrat(args.p2), readEigenstrat(args.a)
@@ -70,7 +92,9 @@ def main():
     # set parameters of HMM as suggested in the original paper
     numSNP = pop1_snp.shape[0]
     n1, n2 = pop1_snp.shape[1], pop2_snp.shape[1]
-    rho1, rho2 = 60000/n1, 60000/n2
+
+    rho1, rho2 = (60000/n1, 90000/n2) if not args.similar else (60000/n1, 60000/n2)
+    
     theta1, theta2 = 0.2/(0.2+n1), 0.2/(0.2+n2)
     print('data preprocessing done. Ready to run HMM model')
     print(f'Input data contains {numSNP} SNP sites')
@@ -80,7 +104,12 @@ def main():
 
     hmmModel = hmm_fast.HMM(pop1_snp, pop2_snp, args.mu, args.t, numSNP, n1, n2, rho1, rho2, theta1, theta2, D)
     if args.mis:
-        hmmModel = hmm_miscopy.HMM_mis(pop1_snp, pop2_snp, args.mu, args.t, numSNP, n1, n2, rho1, rho2, theta1, theta2, D, args.miscopy)
+        miscopy = args.miscopy
+        if args.similar:
+            print('--similar flag is asserted. Start finding the best miscopying probability.')
+            miscopy = bestMiscopyProb(pop1_snp, pop2_snp, args.mu, args.t, numSNP, n1, n2, rho1, rho2, theta1, theta2, D, a_snp[:,0])
+            print(f'the miscopying probability that results in highest likelihood is {miscopy}')
+        hmmModel = hmm_miscopy.HMM_mis(pop1_snp, pop2_snp, args.mu, args.t, numSNP, n1, n2, rho1, rho2, theta1, theta2, D, miscopy)
     
     posterior = np.zeros((a_snp.shape[1], numSNP)) #row is for each haplotype, column is for each SNP site
     with open('decode.txt','w') as output:
