@@ -70,7 +70,7 @@ def main():
     # set parameters of HMM as suggested in the original paper
     numSNP = pop1_snp.shape[0]
     n1, n2 = pop1_snp.shape[1], pop2_snp.shape[1]
-    rho1, rho2 = 60000/n1, 90000/n2
+    rho1, rho2 = 60000/n1, 60000/n2
     theta1, theta2 = 0.2/(0.2+n1), 0.2/(0.2+n2)
     print('data preprocessing done. Ready to run HMM model')
     print(f'Input data contains {numSNP} SNP sites')
