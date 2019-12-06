@@ -2,6 +2,8 @@ import numpy as np
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 import seaborn
+import argparse
+import pandas as pd
 
 def readEigenstrat(file):
     '''
@@ -33,7 +35,7 @@ def main():
     pc_df = pd.DataFrame(data=pc, columns=['PC1','PC2'])
     pc_df['cluster'] = Y
 
-    snsplot = sns.lmplot(x='PC1', y='PC2', data=pc_df, fit_reg=False, hue='cluster', 
+    snsplot = seaborn.lmplot(x='PC1', y='PC2', data=pc_df, fit_reg=False, hue='cluster', 
                legend=True, scatter_kws={'s':50})
     snsplot.savefig('pca.png')
 
