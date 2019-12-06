@@ -36,3 +36,6 @@ def main():
     snsplot = sns.lmplot(x='PC1', y='PC2', data=pc_df, fit_reg=False, hue='cluster', 
                legend=True, scatter_kws={'s':50})
     snsplot.savefig('pca.png')
+
+if __name__ == '__main__':
+    main()
