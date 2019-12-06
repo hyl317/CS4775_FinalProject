@@ -5,6 +5,7 @@ import hmm
 import hmm_fast
 import hmm_miscopy
 from numba import jit
+import matplotlib.pyplot as plt
 
 def readEigenstrat(file):
     '''

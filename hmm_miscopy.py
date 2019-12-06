@@ -207,7 +207,7 @@ class HMM_mis(object):
 
     def logProb(self, obs):
         emis = self.emissionALL(obs)
-        n1, n2 = self,n1, self.n2
+        n1, n2 = self.n1, self.n2
         ncol = self.numSNP
         f = self.forward(emis)
         return logsumexp(f[:,-1])
