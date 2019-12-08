@@ -114,11 +114,11 @@ def main():
 
     binSize = 0.05
     color = ['r', 'm', 'g', 'b']
-    labels = ['t=6', 't=20', 't=50', 't=100']
+    labels = ['t=5', 't=10', 't=15', 't=20']
     ham = []
     plt.figure()
-    plt.xlabel('Posterior probability of originating from CEU')
-    plt.ylabel('Empirical probability of originating from CEU')
+    plt.xlabel('Posterior probability of originating from YRI')
+    plt.ylabel('Empirical probability of originating from YRI')
     plt.title('Posterior Probability Calibration for Hapmix with Miscopy')
     plt.plot([0,1],[0,1], color='black',linewidth=2)
     for decodeFile, refAncestryFile, c, label in zip(decodeFileList, refAncestryFileList, color, labels):
