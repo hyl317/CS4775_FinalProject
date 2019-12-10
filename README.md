@@ -16,7 +16,7 @@ The main program is hapmix.py. Use `python hapmix.py -h`, you can view several n
 ```
 python hapmix.py -h
 usage: hapmix.py [-h] -p1 P1 -p2 P2 -a A -m M [-mu MU] [-t T]
-                 [--miscopy MISCOPY] [--mis]
+                 [--miscopy MISCOPY] [--mis] [--similar]
 
 Local Ancestry Inference as implemented in Hapmix.
 
@@ -33,6 +33,8 @@ optional arguments:
                      Default=5
   --miscopy MISCOPY  miscopying probability. Default is 0.05.
   --mis              If this flag is asserted, then miscopy will be allowed.
+  --similar          If this flag is asserted, miscopying probability will be
+                     determined by log probability.
 ```
 
 The eigenstrat, .snp file format specification and examples can be found in [admix-simu](https://github.com/williamslab/admix-simu).
